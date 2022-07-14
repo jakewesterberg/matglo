@@ -48,24 +48,24 @@ glo_info.seq_type                           = [];
 for i = 1 : 5 : glo_info.total_trials
     if (~floor(sum(glo_info.ori(i:i+3)==glo_info.seq_go')/4) & ...
             ~floor(sum(glo_info.ori(i:i+3)==glo_info.seq_lo')/4)) & ...
-            isempty(glo_info.gloexp_inds)
+            ~isfield(glo_info, 'gloexp')
 
         % index the positions of main experiment vs. control sequence presentations
         glo_info.gloexp                     = zeros(glo_info.total_trials,1); glo_info.gloexp(1:i-1) = 1; % main glo sequences
-        glo_info.seqctl                     = zeros(glo_info.total_trials,1); glo_info.seqctl(i:end-500) = 1; % randomized control sequences
-        glo_info.rndctl                     = zeros(glo_info.total_trials,1); glo_info.rndctl(end-499:end) = 1; % sequenced control with alternating [g g g g, l l l l, etc.]
+        glo_info.rndctl                     = zeros(glo_info.total_trials,1); glo_info.rndctl(i:end-500) = 1; % randomized control sequences
+        glo_info.seqctl                     = zeros(glo_info.total_trials,1); glo_info.seqctl(end-499:end) = 1; % sequenced control with alternating [g g g g, l l l l, etc.]
     end
 
     % code the sequence types in case we determine other seq combos are
     % interesting
-    glo_info.seq_type                       = [glo_info.seq_type; find(sum(glo_info.seq_combos == glo_info.ori(i:i+3)',2)==4)]; % give each sequence a code relative combo matrix
+    glo_info.seq_type                       = [glo_info.seq_type; repmat(find(sum(glo_info.seq_combos == glo_info.ori(i:i+3)',2)==4),5,1)]; % give each sequence a code relative combo matrix
 end
 
 % identify useful sequences
-glo_info.go_seq                             = glo_info.seq_type == glo_info.seq_go;
-glo_info.lo_seq                             = glo_info.seq_type == glo_info.seq_lo;
-glo_info.igo_seq                            = glo_info.seq_type == glo_info.seq_igo;
-glo_info.ilo_seq                            = glo_info.seq_type == glo_info.seq_ilo;
+glo_info.go_seq                             = glo_info.seq_type == glo_info.seq_go_type;
+glo_info.lo_seq                             = glo_info.seq_type == glo_info.seq_lo_type;
+glo_info.igo_seq                            = glo_info.seq_type == glo_info.seq_igo_type;
+glo_info.ilo_seq                            = glo_info.seq_type == glo_info.seq_ilo_type;
 
 % index presentation numbers within sequence
 glo_info.pres1                              = zeros(glo_info.total_trials,1); glo_info.pres1(1:5:end) = 1; % first presentation in a sequence (no adaptation)
