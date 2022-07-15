@@ -39,8 +39,11 @@ for i = 1 : ss.total_trials
     off_spkids{i}       = unit_info.spk_unit(unit_info.spk_times>ss.off(i) & unit_info.spk_times<=ss.off(i)+spks.off_dur);
 end
 
+spks.conv = [];
+
 pre_spks_conv = single(nan(unit_info.total, spks.fs*spks.pre_dur, ss.total_trials));
 on_spks_conv = single(nan(unit_info.total, spks.fs*spks.on_dur, ss.total_trials));
+
 off_spks_conv = single(nan(unit_info.total, spks.fs*spks.off_dur, ss.total_trials));
 for i = 1:unit_info.total
     for j = 1:ss.total_trials
@@ -62,6 +65,8 @@ for i = 1:unit_info.total
     end
 end
 
-spks.conv = cat(2,pre_spks_conv,on_spks_conv,off_spks_conv);
+spks.conv = cat(2,spks.conv, pre_spks_conv); clear pre_spks_conv;
+spks.conv = cat(2,spks.conv, on_spks_conv); clear on_spks_conv;
+spks.conv = cat(2,spks.conv, off_spks_conv); clear off_spk_conv;
 
 end

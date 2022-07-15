@@ -1,4 +1,4 @@
-% Have matnwb and matglo on the path
+% Have matnwb and matglo on the pathciplot
 FILE = 'S:\Dropbox\_DATA\GLO_pilot_data\raw_nwb\sub-1179909741_ses-1179909741.nwb';
 
 nwb = load_nwb(FILE);
