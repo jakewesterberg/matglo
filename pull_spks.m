@@ -49,7 +49,7 @@ switch storage_type
 
         save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3')
         spks = matfile([file_path file_name], 'Writable', true);
-        spks.conv = single(zeros(unit_info.total, conv_data_length, ss.total_trials), 'single');
+        spks.conv = zeros(unit_info.total, conv_data_length, ss.total_trials, 'single');
 
         switch pull_method
             case 'convolve_then_pull'
@@ -75,7 +75,8 @@ switch storage_type
                         all_spktimes = unit_info.spk_times(unit_info.spk_times >= min(ss.on)-pre_dur & unit_info.spk_times <= max(ss.off)+off_dur) - (ss.on(1) - pre_dur);
                         all_spkids = unit_info.spk_unit(unit_info.spk_times >= min(ss.on)-pre_dur & unit_info.spk_times <= max(ss.off)+off_dur);
 
-                        channel_slice = ceil(.9 * (mem.MemAvailableAllArrays / 4 / ceil(max(all_spktimes) * 1000)+1000)); 
+                        channel_slice = ceil(.9 * (mem.MemAvailableAllArrays / 4 / ceil(max(all_spktimes) * 1000)+1000));
+                        if channel_slice > unit_info.total; channel_slice = unit_info.total; end
                         for i = 1 : ceil(unit_info.total / channel_slice)
 
                             channel_idx = [i*channel_slice - channel_slice + 1, i*channel_slice];
