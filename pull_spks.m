@@ -14,6 +14,7 @@ pull_method = 'convolve_then_pull';
 storage_type = 'matfile';
 file_path = [pwd filesep];
 file_name = 'default_file_name.mat';
+optimize_speed = true;
 
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
@@ -34,6 +35,8 @@ for iv = 1:length(varStrInd)
             file_path = varargin{varStrInd(iv)+1};
         case {'-n', 'file_name'}
             file_name = varargin{varStrInd(iv)+1};
+        case {'-o', 'optimize_speed'}
+            optimize_speed = varargin{varStrInd(iv)+1};    
     end
 end
 
@@ -55,12 +58,17 @@ switch storage_type
                     conv_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
                     conv_data                               = single(conv_data);
                     conv_data                               = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
-
-                    for i = 1 : ss.total_trials
-                        spks.conv(j,1:conv_data_length,i)   = [conv_data(:, ceil((ss.on(i)-spks.pre_dur)*1000) : ceil((ss.on(i)+spks.on_dur)*1000)), ...
-                            conv_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+spks.off_dur)*1000))];
+                    
+                    switch optimize_speed
+                        case false
+                            for i = 1 : ss.total_trials
+                                spks.conv(j,1:conv_data_length,i)   = ...
+                                    [conv_data(:, ceil((ss.on(i)-spks.pre_dur)*1000) : ceil((ss.on(i)+spks.on_dur)*1000)), ...
+                                    conv_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+spks.off_dur)*1000))];
+                            end
+                        case true
+                            
                     end
-
                     clear conv_data
                 end
         end
