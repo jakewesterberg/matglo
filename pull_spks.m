@@ -49,7 +49,7 @@ switch storage_type
 
         save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3')
         spks = matfile([file_path file_name], 'Writable', true);
-        spks.conv = single(zeros(unit_info.total, conv_data_length, ss.total_trials));
+        spks.conv = single(zeros(unit_info.total, conv_data_length, ss.total_trials), 'single');
 
         switch pull_method
             case 'convolve_then_pull'
@@ -83,7 +83,8 @@ switch storage_type
                             spkids = all_spkids(all_spkids >= channel_idx(1) & all_spkids < channel_idx(2));
 
                             conv_data = zeros(channel_slice, ceil(max(all_spktimes(:)) * 1000)+1000, 'single');
-                            conv_data(spkids - (channel_idx(1)-1), ceil(spktimes * 1000))   = 1;
+                            ind = sub2ind(size(conv_data), spkids - (channel_idx(1)-1), ceil(spktimes * 1000));
+                            conv_data(ind)   = 1;
                             conv_data = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
                             
                             conv = [];
