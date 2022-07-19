@@ -21,7 +21,7 @@ unit_info.total                     = numel(unit_info.spk_assign);
 unit_info.probe                     = floor(nwb.units.vectordata.get('peak_channel_id').data(:) / 968);
 unit_info.ch                        = mod(nwb.units.vectordata.get('peak_channel_id').data(:), 968);
 
-unit_info.wave                      = nwb.units.waveform_mean.data(:, nwb.units.vectordata.get('waveform_mean_index').data(:));
+unit_info.wave                      = nwb.units.waveform_mean.data(:, nwb.units.vectordata.get('waveform_mean_index').data(:) - 1);
 
 % misc. kilosort output
 unit_info.PT_ratio                  = nwb.units.vectordata.get('PT_ratio').data(:); 
@@ -52,6 +52,5 @@ unit_info.velocity_above            = nwb.units.vectordata.get('velocity_above')
 unit_info.velocity_below            = nwb.units.vectordata.get('velocity_below').data(:);
 unit_info.waveform_duration         = nwb.units.vectordata.get('waveform_duration').data(:);
 unit_info.waveform_halfwidth        = nwb.units.vectordata.get('waveform_halfwidth').data(:);
-unit_info.waveform_mean_index       = nwb.units.vectordata.get('waveform_mean_index').data(:);
 
 end
