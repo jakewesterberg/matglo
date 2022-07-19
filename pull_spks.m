@@ -54,7 +54,7 @@ switch storage_type
         switch pull_method
             case 'convolve_then_pull'
                 switch optimize_speed
-                    case false % bugged spike unit assignments
+                    case false
                         for j = 1 : unit_info.total
                             conv_data                               = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000, 'single');
                             conv_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
