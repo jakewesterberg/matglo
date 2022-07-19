@@ -1,5 +1,6 @@
 % Have matnwb and matglo on the pathciplot
 %FILE = 'S:\Dropbox\_DATA\GLO_pilot_data\raw_nwb\sub-1179909741_ses-1179909741.nwb';
+clear
 
 for i =  1:3
     if i == 1
@@ -31,6 +32,11 @@ save([file_path 'opto_info' '.mat'], 'opto_info', '-v7.3')
 toc
 
 tic
+unit_info = pull_unit_info(nwb);
+save([file_path 'unit_info' '.mat'], 'unit_info', '-v7.3')
+toc
+
+tic
 pull_spks(unit_info, rf_info, 'fs', 1000, 'pre_dur', .25, 'on_dur', .25, 'off_dur', .25, 'file_path', file_path, 'file_name', 'rf_spks.mat');
 toc
 
@@ -40,11 +46,6 @@ toc
 
 tic
 pull_spks(unit_info, opto_info, 'fs', 1000, 'pre_dur', 1, 'on_dur', 1, 'off_dur', 1, 'file_path', file_path, 'file_name', 'opto_spks.mat');
-toc
-
-tic
-unit_info = pull_unit_info(nwb);
-save([file_path 'unit_info' '.mat'], 'unit_info', '-v7.3')
 toc
 
 clear nwb

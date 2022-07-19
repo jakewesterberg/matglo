@@ -56,7 +56,7 @@ switch storage_type
                 switch optimize_speed
                     case false % bugged spike unit assignments
                         for j = 1 : unit_info.total
-                            conv_data                               = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000, 'typename', 'single');
+                            conv_data                               = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000, 'single');
                             conv_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
                             conv_data                               = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
 
@@ -82,7 +82,7 @@ switch storage_type
                             spktimes = all_spktimes(all_spkids >= channel_idx(1) & all_spkids < channel_idx(2));
                             spkids = all_spkids(all_spkids >= channel_idx(1) & all_spkids < channel_idx(2));
 
-                            conv_data = zeros(channel_slice, ceil(max(all_spktimes(:)) * 1000)+1000, 'typename', 'single');
+                            conv_data = zeros(channel_slice, ceil(max(all_spktimes(:)) * 1000)+1000, 'single');
                             conv_data(spkids - (channel_idx(1)-1), ceil(spktimes * 1000))   = 1;
                             conv_data = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
                             
