@@ -31,9 +31,9 @@ for iv = 1:length(varStrInd)
         case {'-s', 'storage_type'}
             storage_type = varargin{varStrInd(iv)+1};
         case {'-p', 'file_path'}
-            file_path = varargin{varStrInd(iv)+1}; 
+            file_path = varargin{varStrInd(iv)+1};
         case {'-n', 'file_name'}
-            file_name = varargin{varStrInd(iv)+1};        
+            file_name = varargin{varStrInd(iv)+1};
     end
 end
 
@@ -41,9 +41,12 @@ end
 switch storage_type
     case 'matfile'
 
-        conv = [];
-        save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', 'conv', '-v7.3')
+        conv_data_length                        =  numel([ceil((ss.on(1)-pre_dur)*1000) : ceil((ss.on(1)+on_dur)*1000), ...
+                                                        ceil(ss.off(1)*1000) : ceil((ss.off(1)+off_dur)*1000)]);
+
+        save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3')
         spks = matfile([file_path file_name], 'Writable', true);
+        spks.conv = single(zeros(unit_info.total, conv_data_length, ss.total_trials));
 
         switch pull_method
             case 'convolve_then_pull'
@@ -52,17 +55,19 @@ switch storage_type
                     conv_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
                     conv_data                               = single(conv_data);
                     conv_data                               = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
+
                     for i = 1 : ss.total_trials
-                        spks.cnv(j,:,i)                     = [conv_data(:, ceil((ss.on(i)-spks.pre_dur)*1000) : ceil((ss.on(i)+spks.on_dur)*1000)), ...
-                                                                conv_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+spks.off_dur)*1000))];
+                        spks.conv(j,1:conv_data_length,i)   = [conv_data(:, ceil((ss.on(i)-spks.pre_dur)*1000) : ceil((ss.on(i)+spks.on_dur)*1000)), ...
+                            conv_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+spks.off_dur)*1000))];
                     end
+
                     clear conv_data
                 end
         end
 
 
     case 'structure'
-        
+
         spks.fs = fs; % at or below 1000
         spks.pre_dur = pre_dur;
         spks.on_dur = on_dur;
@@ -72,8 +77,8 @@ switch storage_type
             case 'convolve_then_pull'
 
                 spks.conv                               = nan(unit_info.total, ...
-                    ceil(spks.fs*(spks.pre_dur+spks.on_dur+spks.off_dur)), ...
-                    ss.total_trials);
+                                                            ceil(spks.fs*(spks.pre_dur+spks.on_dur+spks.off_dur)), ...
+                                                            ss.total_trials);
                 for j = 1 : unit_info.total
                     conv_data                               = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000);
                     conv_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
@@ -81,7 +86,7 @@ switch storage_type
                     conv_data                               = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
                     for i = 1 : ss.total_trials
                         spks.cnv(j,:,i)                     = [conv_data(:, ceil((ss.on(i)-spks.pre_dur)*1000) : ceil((ss.on(i)+spks.on_dur)*1000)), ...
-                            conv_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+spks.off_dur)*1000))];
+                                                                conv_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+spks.off_dur)*1000))];
                     end
                     clear conv_data
                 end
