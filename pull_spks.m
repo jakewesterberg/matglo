@@ -54,7 +54,7 @@ switch storage_type
         switch pull_method
             case 'convolve_then_pull'
                 switch optimize_speed
-                    case false
+                    case false % bugged spike unit assignments
                         for j = 1 : unit_info.total
                             conv_data                               = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000, 'typename', 'single');
                             conv_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
@@ -73,7 +73,7 @@ switch storage_type
                         mem = memory;
                         
                         all_spktimes = unit_info.spk_times(unit_info.spk_times >= min(ss.on)-pre_dur & unit_info.spk_times <= max(ss.off)+off_dur) - (ss.on(1) - pre_dur);
-                        all_spkids = unit_info.spk_assign(unit_info.spk_times >= min(ss.on)-pre_dur & unit_info.spk_times <= max(ss.off)+off_dur);
+                        all_spkids = unit_info.spk_unit(unit_info.spk_times >= min(ss.on)-pre_dur & unit_info.spk_times <= max(ss.off)+off_dur);
 
                         channel_slice = ceil(.9 * (mem.MemAvailableAllArrays / 4 / ceil(max(all_spktimes) * 1000)+1000)); 
                         for i = 1 : ceil(unit_info.total / channel_slice)
