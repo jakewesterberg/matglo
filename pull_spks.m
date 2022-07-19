@@ -32,21 +32,20 @@ end
 switch mthd
     case 'convolve_then_pull'
 
-        conv_data                               = zeros(unit_info.total, max(unit_info.spk_times(:) + 1000));
-        conv_data(unit_info.spk_unit, ...
-            ceil(unit_info.spk_times * 1000))   = 1;
-        conv_data                               = single(conv_data);
-        conv_data                               = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
-
         spks.conv                               = nan(unit_info.total, ...
                                                     ceil(spks.fs*(spks.pre_dur+spks.on_dur+spks.off_dur)), ...
                                                     ss.total_trials);
-        
-        for i = 1 : ss.total_trials
-            spks.cnv(:,:,i)                     = [conv_data(:, (ss.on(i)-spks.predur)*1000 : (ss.on(i)+spks.on_dur)*1000), ...
-                                                    conv_data(:, ss.off(i)*1000 : (ss.off(i)+spks.off_dur)*1000)];
+        for j = 1 : unit_info.total
+            conv_data                               = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000);
+            conv_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
+            conv_data                               = single(conv_data);
+            conv_data                               = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
+            for i = 1 : ss.total_trials
+                spks.cnv(j,:,i)                     = [conv_data(:, ceil((ss.on(i)-spks.pre_dur)*1000) : ceil((ss.on(i)+spks.on_dur)*1000)), ...
+                    conv_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+spks.off_dur)*1000))];
+            end
+            clear conv_data
         end
-
 
     case 'pull_then_convolve'
         for i = 1 : ss.total_trials
