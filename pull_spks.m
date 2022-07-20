@@ -50,6 +50,7 @@ switch storage_type
         save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3')
         spks = matfile([file_path file_name], 'Writable', true);
         spks.conv = zeros(unit_info.total, conv_data_length, ss.total_trials, 'single');
+        spks.bin  = zeros(unit_info.total, conv_data_length, ss.total_trials, 'logical');
 
         switch pull_method
             case 'convolve_then_pull'
@@ -72,10 +73,21 @@ switch storage_type
                     case true
                         mem = memory;
                         
-                        all_spktimes = unit_info.spk_times(unit_info.spk_times >= min(ss.on)-pre_dur & unit_info.spk_times <= max(ss.off)+off_dur) - (ss.on(1) - pre_dur);
-                        all_spkids = unit_info.spk_unit(unit_info.spk_times >= min(ss.on)-pre_dur & unit_info.spk_times <= max(ss.off)+off_dur);
+                        sson = ss.on - (min(ss.on) - pre_dur);
+                        ssoff = ss.off - (min(ss.on) - pre_dur);
+                        unit_info.spk_times = unit_info.spk_times - (min(ss.on) - pre_dur);
 
-                        channel_slice = ceil(.9 * (mem.MemAvailableAllArrays / 4 / ceil(max(all_spktimes) * 1000)+1000));
+                        onv_1 = ceil((sson-pre_dur)*1000) + 1;
+                        onv_2 = ceil((sson+on_dur)*1000) + 1;
+                        offv_1 = ceil((ssoff)*1000) + 1;
+                        offv_2 = ceil((ssoff+off_dur)*1000) + 1;
+
+                        tt = ss.total_trials;
+
+                        all_spktimes = unit_info.spk_times(unit_info.spk_times >= 0 & unit_info.spk_times <= max(ssoff)+off_dur);
+                        all_spkids = unit_info.spk_unit(unit_info.spk_times >= 0 & unit_info.spk_times <= max(ssoff)+off_dur);
+
+                        channel_slice = ceil(.33 * (mem.MemAvailableAllArrays / 4 / ceil(max(all_spktimes) * 1000)+1000));
                         if channel_slice > unit_info.total; channel_slice = unit_info.total; end
                         for i = 1 : ceil(unit_info.total / channel_slice)
 
@@ -83,22 +95,25 @@ switch storage_type
                             spktimes = all_spktimes(all_spkids >= channel_idx(1) & all_spkids < channel_idx(2));
                             spkids = all_spkids(all_spkids >= channel_idx(1) & all_spkids < channel_idx(2));
 
-                            conv_data = zeros(channel_slice, ceil(max(all_spktimes(:)) * 1000)+1000, 'single');
+                            conv_data = zeros(channel_slice, ceil(max(all_spktimes(:)) * 1000)+1000, 'logical');
                             ind = sub2ind(size(conv_data), spkids - (channel_idx(1)-1), ceil(spktimes * 1000));
                             conv_data(ind)   = 1;
-                            conv_data = spks_conv(conv_data, spks_kernel('psp')) .* 1000;
-                            
-                            conv = [];
-                            for j = ss.total_trials : -1 : 1
-                                conv  = cat(3, ...
-                                    [conv_data(:, ceil((ss.on(j)-spks.pre_dur)*1000) : ceil((ss.on(j)+spks.on_dur)*1000)), ...
-                                    conv_data(:, ceil(ss.off(j)*1000) : ceil((ss.off(j)+spks.off_dur)*1000))], ...
-                                    conv);
 
-                                    conv_data = conv_data(:, 1:ceil((ss.on(j)-spks.pre_dur)*1000)+1000);
+                            bin  = zeros(channel_slice, conv_data_length, tt, 'logical');
+                            for j = 1:tt
+                                bin(:,:,j)  = [conv_data(:, onv_1(j):onv_2(j)) conv_data(:, offv_1(j) : offv_2(j))];
                             end
 
-                            spks.conv(channel_idx,1:conv_data_length,1:ss.total_trials) = conv; clear conv
+                            spks.bin(channel_idx(1):channel_idx(2),1:conv_data_length,1:tt) = bin; clear bin
+
+                            conv_data = spks_conv(single(conv_data), spks_kernel('psp')) .* 1000;
+                            
+                            conv = zeros(channel_slice, conv_data_length, ss.total_trials, 'single');
+                            for j = 1:tt
+                                conv(:,:,j)  =  [conv_data(:, onv_1(j):onv_2(j)) conv_data(:, offv_1(j) : offv_2(j))];
+                            end
+
+                            spks.conv(channel_idx(1):channel_idx(2),1:conv_data_length,1:tt) = conv; clear conv
 
                         end
 

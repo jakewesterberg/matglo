@@ -37,7 +37,7 @@ save([file_path 'unit_info' '.mat'], 'unit_info', '-v7.3')
 toc
 
 tic
-pull_spks(unit_info, rf_info, 'fs', 1000, 'pre_dur', .25, 'on_dur', .25, 'off_dur', .25, 'file_path', file_path, 'file_name', 'rf_spks.mat');
+pull_spks(unit_info, rf_info, 'fs', 1000, 'pre_dur', .05, 'on_dur', .25, 'off_dur', .05, 'file_path', file_path, 'file_name', 'rf_spks.mat');
 toc
 
 tic
