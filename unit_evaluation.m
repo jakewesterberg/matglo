@@ -1,4 +1,4 @@
-function unit_evaluation(unit_info, rf_info, rf_spks, opto_info, opto_spks, glo_info, glo_spks, varargin)
+function unit_evaluation(ident, unit_info, rf_info, rf_spks, opto_info, opto_spks, glo_info, glo_spks, varargin)
 
 do_save = false;
 
@@ -103,7 +103,7 @@ for i = units
     plot_unit_info_hist(i, unit_info, 'nn_miss_rate')
 
     if exist('do_save', 'var')
-        export_fig([do_save filsep 'unit-' i 'uniteval'])
+        export_fig([do_save filsep ident '-unit-' i 'uniteval'])
     end
 
 
@@ -145,9 +145,10 @@ for i = units
     plot_context(i, glo_info, glo_spks, '-ss', 25)
 
     if exist('do_save', 'var')
-        export_fig([do_save filsep 'unit-' i 'gloeval'])
+        export_fig([do_save filsep ident '-unit-' i 'gloeval'])
     end
-
+    
+    close all
 
 end
 end
