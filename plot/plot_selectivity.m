@@ -3,8 +3,8 @@ function plot_selectivity(i,glo_info, glo_spks, varargin); hold on;
 be = 0.05;
 ss = 5;
 
-s1_vec = find(glo_info.ori == glo_info.go);
-s2_vec = find(glo_info.ori == glo_info.lo);
+s1_vec = find(glo_info.ori == glo_info.go & glo_info.rndctl);
+s2_vec = find(glo_info.ori == glo_info.lo & glo_info.rndctl);
 
 title_ch = 'Selectivity Control';
 
@@ -28,13 +28,13 @@ bl_epoch = (glo_spks.pre_dur*glo_spks.fs-be*glo_spks.fs):(glo_spks.pre_dur*glo_s
 pres_epoch = (-1* glo_spks.pre_dur*1000) + 1000/glo_spks.fs : ...
     1000/glo_spks.fs : ...
     (((glo_spks.on_dur + glo_spks.off_dur)*1000));
-s1 = baseline_correct(squeeze(glo_spks.conv(i,:,s1_vec), bl_epoch);
+s1 = baseline_correct(squeeze(glo_spks.conv(i,2:end-1,s1_vec)), bl_epoch);
 
 [m,l,u] = confidence_interval(double(s1));
 plot_ci(smooth(l,ss),smooth(u,ss), pres_epoch,[.5 0 0],.25)
 S1 = plot(pres_epoch,smooth(m,ss),'linewidth',2,'color',[.5 0 0]);
 
-s2 = baseline_correct(squeeze(glo_spks.conv(i,:,s2_vec)), bl_epoch);
+s2 = baseline_correct(squeeze(glo_spks.conv(i,2:end-1,s2_vec)), bl_epoch);
 
 [m,l,u] = confidence_interval(double(s2));
 plot_ci(smooth(l,ss),smooth(u,ss), pres_epoch,[0 .5 0],.25)

@@ -8,7 +8,7 @@ for iv = 1:length(varStrInd)
         case {'units'}
             units = varargin{varStrInd(iv)+1};
         case {'save'}
-            do_save = varargin{varStrInd(iv)+1};
+            do_save = true;
     end
 end
 
@@ -16,7 +16,7 @@ if ~exist('units'); units = 1:unit_info.total; end
 
 for i = units
 
-    figure; tiledlayout(6, 7, 'TileSpacing', 'tight');
+    figure; tiledlayout(6, 7);
 
     nexttile([4 2]);
     imagesc(unit_info.waveprint(:,:,i)');
@@ -48,44 +48,26 @@ for i = units
     nexttile();
     plot_unit_info_hist(i, unit_info, 'PT_ratio')
 
-    nexttile();
+        nexttile();
     plot_unit_info_hist(i, unit_info, 'recovery_slope')
 
-    nexttile();
-    plot_unit_info_hist(i, unit_info, 'repolarization_slope')
+    nexttile([1 2]);
+    plot_unit_stamina(i,glo_spks,rf_spks,opto_spks);
+
+    nexttile([2 2]);
+    plot_rf(i, rf_info, rf_spks);
+
+    nexttile([1 2]);
+    plot_opto(i, opto_info, opto_spks, '5 hz pulse train')
 
     nexttile([1 2]);
     plot_opto(i, opto_info, opto_spks, '40 hz pulse train')
-
-    nexttile();
-    plot_unit_info_hist(i, unit_info, 'velocity_above')
-
-    nexttile();
-    plot_unit_info_hist(i, unit_info, 'velocity_below')
-
-    nexttile();
-    plot_unit_info_hist(i, unit_info, 'l_ratio')
 
     nexttile([1 2]);
     plot_opto(i, opto_info, opto_spks, 'raised_cosine')
 
     nexttile();
-    plot_unit_info_hist(i, unit_info, 'd_prime')
-
-    nexttile();
     plot_unit_info_hist(i, unit_info, 'snr')
-
-    nexttile();
-    plot_unit_info_hist(i, unit_info, 'isi_violations')
-
-    nexttile([2 2]);
-    plot_rf(i, rf_info, rf_spks);
-
-    nexttile([2 2]);
-    plot_unit_stamina(i,glo_spks,rf_spks,opto_spks);
-
-    nexttile();
-    plot_unit_info_hist(i, unit_info, 'firing_rate')
 
     nexttile();
     plot_unit_info_hist(i, unit_info, 'isolation_distance')
@@ -94,7 +76,22 @@ for i = units
     plot_unit_info_hist(i, unit_info, 'silhouette_score')
 
     nexttile();
+    plot_unit_info_hist(i, unit_info, 'isi_violations')
+
+    nexttile();
+    plot_unit_info_hist(i, unit_info, 'd_prime')
+
+    nexttile();
+    plot_unit_info_hist(i, unit_info, 'l_ratio')
+
+    nexttile();
     plot_unit_info_hist(i, unit_info, 'spread')
+
+    nexttile();
+    plot_unit_info_hist(i, unit_info, 'velocity_above')
+
+    nexttile();
+    plot_unit_info_hist(i, unit_info, 'velocity_below')
 
     nexttile();
     plot_unit_info_hist(i, unit_info, 'nn_hit_rate')
@@ -102,9 +99,9 @@ for i = units
     nexttile();
     plot_unit_info_hist(i, unit_info, 'nn_miss_rate')
 
-    if exist('do_save', 'var')
-        export_fig([do_save filsep 'unit-' i 'uniteval'])
-    end
+    nexttile();
+    plot_unit_info_hist(i, unit_info, 'firing_rate')
+
 
 
     figure; tiledlayout(8, 12);
@@ -143,11 +140,6 @@ for i = units
     % GO in context
     nexttile([2 8])
     plot_context(i, glo_info, glo_spks, '-ss', 25)
-
-    if exist('do_save', 'var')
-        export_fig([do_save filsep 'unit-' i 'gloeval'])
-    end
-
 
 end
 end

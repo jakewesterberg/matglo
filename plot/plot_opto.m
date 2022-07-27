@@ -1,4 +1,7 @@
-function plot_opto(i, opto_info, opto_spks, varargin); hold on;
+function plot_opto(i, opto_info, opto_spks, cond, varargin); hold on;
+
+be = 0.05;
+ss = 5;
 
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
@@ -7,27 +10,20 @@ for iv = 1:length(varStrInd)
             be = varargin{varStrInd(iv)+1};
         case {'-ss', 'smoothing_span'}
             ss = varargin{varStrInd(iv)+1};
-        case {'-c', 'conditions'}
-            optos = varargin{varStrInd(iv)+1};
     end
 end
 
+bl_epoch = (opto_spks.pre_dur*opto_spks.fs-be*opto_spks.fs):(opto_spks.pre_dur*opto_spks.fs);
+p_vec = (opto_spks.pre_dur*-1000)-(1000/opto_spks.fs):(1000/opto_spks.fs):((opto_spks.on_dur+opto_spks.off_dur)*1000);
 
-uniq_opto = unique(optos);
-for j =  1 : numel(uniq_opto)
-    tspk = [squeeze(opto.pre_spks_conv(i,:,strcmp(opto.type, uniq_opto{j}))); ...
-        squeeze(opto.on_spks_conv(i,:,strcmp(optos, uniq_opto{j}))); ...
-        squeeze(opto.off_spks_conv(i,:,strcmp(optos, uniq_opto{j})))];
+tspk = baseline_correct(opto_spks.conv(i,:,find(strcmp(opto_info.type, cond))),bl_epoch);
 
-    tspk = tspk - repmat(mean(squeeze(opto.pre_spks_conv(i,end-19:end,strcmp(opto.type, uniq_opto{j})))), 600, 1);
+[m,l,u] = confidence_interval(double(tspk));
+plot_ci(smooth(l,ss),smooth(u,ss),p_vec, [.9 0 .9],.25)
+plot(p_vec,smooth(m,ss),'linewidth',2,'color', [.9 0 .9]);
 
-    [m,l,u] = H_CI(double(tspk));
-    ciplot(smooth(l),smooth(u),-995:5:2000, [1-(.2*j) 0 1-(.2*j)],.25)
-    lines{j}=plot(-995:5:2000,smooth(m),'linewidth',2,'color', [1-(.2*j) 0 1-(.2*j)]);
-end
-legend([lines{1} lines{2} lines{3}], uniq_opto,'location','northwest')
-set(gca,'XLim',[-1000 2000])
-title('Condition-wise Opto')
+set(gca,'XLim',[-1000*opto_spks.pre_dur 1000*(opto_spks.on_dur + opto_spks.off_dur)])
+title(['Optotag: ' strrep(cond, '_', ' ')])
 box on
 
 end
