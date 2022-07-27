@@ -22,12 +22,9 @@ unit_info.probe                     = floor(nwb.units.vectordata.get('peak_chann
 unit_info.ch                        = mod(nwb.units.vectordata.get('peak_channel_id').data(:), 968);
 
 for i = 1 : unit_info.total
+    nwb.units.vectordata.get('waveform_mean_index').data(:)
     unit_info.waveprint(:,:,i)      = nwb.units.waveform_mean.data(:,i*384-383:i*384);
-    try
-        unit_info.waveform(:,i)     = unit_info.waveprint(:,nwb.units.vectordata.get('peak_channel_id').data(i),i);
-    catch
-        unit_info.waveform(:,i)     = zeros(82,1);
-    end
+    unit_info.waveform(:,i)         = unit_info.waveprint(:,nwb.units.vectordata.get('peak_channel_id').data(i),i);
     unit_info.e_waveform(:,i)       = nwb.units.waveform_mean.data(:,nwb.units.vectordata.get('waveform_mean_index').data(i));
 end
 
@@ -60,6 +57,5 @@ unit_info.velocity_above            = nwb.units.vectordata.get('velocity_above')
 unit_info.velocity_below            = nwb.units.vectordata.get('velocity_below').data(:);
 unit_info.waveform_duration         = nwb.units.vectordata.get('waveform_duration').data(:);
 unit_info.waveform_halfwidth        = nwb.units.vectordata.get('waveform_halfwidth').data(:);
-unit_info.waveform_mean_index       = nwb.units.vectordata.get('waveform_mean_index').data(:);
 
 end
