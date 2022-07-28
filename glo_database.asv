@@ -1,4 +1,4 @@
-function [glodb, params] = glo_database(unit_info, glo_spks, varargin)
+function [glodb, params] = glo_database(unit_info, glo_spks, opto_spks, varargin)
 
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
@@ -195,12 +195,10 @@ for i = 1 : unit_info.total
                 mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_2)))];
 
             glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ; ...
-                sampsizepwr('t2',[glodb.([temp_str_1 '_mean'])(end) glodb.([temp_str_1 '_sd'])(end)], ...
-                glodb.([temp_str_2 '_mean'])(end), [], glodb.([temp_str_1 '_n'])(end))];
+                sampsizepwr('t2',[glodb.([temp_str '_mean'])(end) glodb.([temp_str '_sd'])(end)], 0, [], glodb.([temp_str '_n'])(end))];
 
-            glodb.([temp_str '_nout']) = [ glodb.([temp_str '_nout']) ; ...
-                sampsizepwr('t2',[glodb.([temp_str_1 '_mean'])(end) glodb.([temp_str_1 '_sd'])(end)], ...
-                glodb.([temp_str_2 '_mean'])(end), .8, [])];
+            glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ; ...
+                sampsizepwr('t2',[glodb.([temp_str '_mean'])(end) glodb.([temp_str '_sd'])(end)], 0, .8, [])];
 
         end
     end
