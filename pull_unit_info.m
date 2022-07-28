@@ -29,6 +29,8 @@ for i = 1 : unit_info.total
         unit_info.waveform(:,i)     = zeros(82,1);
     end
     unit_info.e_waveform(:,i)       = nwb.units.waveform_mean.data(:,nwb.units.vectordata.get('waveform_mean_index').data(i));
+    [~,ind1] = max(abs(max(unit_info.waveprint(:,:,i))-min(unit_info.waveprint(:,:,i))));
+    unit_info.minmax_waveform       = unit_info.waveprint(:,ind1,i);
 end
 
 % misc. kilosort output
