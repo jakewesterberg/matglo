@@ -1,4 +1,4 @@
-function [glodb, params] = glo_database(unit_info, glo_spks, varargin)
+function [glodb, params] = glo_database(subj, ses, unit_info, glo_info, glo_spks, varargin)
 
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
@@ -38,29 +38,29 @@ CONDITIONS = {...
     };
 
 COMPARISONS_2_SAMPLE = {...
-    {'GLO_global_oddball_response_type_1', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_gloexp_global_oddball', 'glo_gloexp_pres3'}, ...
-    {'GLO_global_oddball_response_type_2', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_gloexp_global_oddball', 'glo_seqctl_matched_global_stimulus'}, ...
+    {'GLO_global_oddball_response_type_1', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_gloexp_global_oddball', 'GLO_gloexp_pres3'}, ...
+    {'GLO_global_oddball_response_type_2', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_gloexp_global_oddball', 'GLO_seqctl_matched_global_stimulus'}, ...
     ...
-    {'GLO_local_oddball_response_type_1', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_gloexp_local_oddball', 'glo_rndctl_local_stimulus'}, ...
-    {'GLO_local_oddball_response_type_2', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_gloexp_local_oddball', 'glo_rndctl_matched_local_stimulus'}, ...
+    {'GLO_local_oddball_response_type_1', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_gloexp_local_oddball', 'GLO_rndctl_local_stimulus'}, ...
+    {'GLO_local_oddball_response_type_2', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_gloexp_local_oddball', 'GLO_rndctl_matched_local_stimulus'}, ...
     ...
-    {'GLO_stimulus_selectivity', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_rndctl_global_stimulus', 'glo_rndctl_local_stimulus'}, ...
+    {'GLO_stimulus_selectivity', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_rndctl_global_stimulus', 'GLO_rndctl_local_stimulus'}, ...
     };
 
 COMPARISONS_GROUPWISE = {...
-    {'GLO_gloexp_adaptation', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_gloexp_pres1', 'glo_gloexp_pres2', 'glo_gloexp_pres3'}, ...
-    {'GLO_rndctl_adaptation', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_rndctl_pres1', 'glo_rndctl_pres2', 'glo_rndctl_pres3', 'glo_rndctl_pres4'}, ...
-    {'GLO_seqctl_adaptation', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_seqctl_pres1', 'glo_seqctl_pres2', 'glo_seqctl_pres3', 'glo_seqctl_pres4'}, ...
+    {'GLO_gloexp_adaptation', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_gloexp_pres1', 'GLO_gloexp_pres2', 'GLO_gloexp_pres3'}, ...
+    {'GLO_rndctl_adaptation', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_rndctl_pres1', 'GLO_rndctl_pres2', 'GLO_rndctl_pres3', 'GLO_rndctl_pres4'}, ...
+    {'GLO_seqctl_adaptation', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_seqctl_pres1', 'GLO_seqctl_pres2', 'GLO_seqctl_pres3', 'GLO_seqctl_pres4'}, ...
     ...
-    {'GLO_context', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'glo_gloexp_global_oddball', 'glo_rndctl_matched_global_stimulus', 'glo_seqctl_matched_global_stimulus'}
+    {'GLO_context', [40 100 40 540 600 540], [90 500 500 590 1000 1000], 'GLO_gloexp_global_oddball', 'GLO_rndctl_matched_global_stimulus', 'GLO_seqctl_matched_global_stimulus'}
     ...
     };
 
 if exist('glodb', 'var'); glodb = table2struct(glodb); else; glodb = struct(); end
 
 if ~isfield(glodb, 'INFO_subject');                    glodb.INFO_subject = {};                       end
-if ~isfield(glodb, 'INFO_session');                    glodb.INFO_session = [];                       end
-if ~isfield(glodb, 'INFO_probe');                      glodb.INFO_probe = [];                         end
+if ~isfield(glodb, 'INFO_session');                    glodb.INFO_session = {};                       end
+%if ~isfield(glodb, 'INFO_probe');                      glodb.INFO_probe = [];                         end
 %if ~isfield(glodb, 'INFO_brain_area');                 glodb.INFO_brain_area = [];          end
 %if ~isfield(glodb, 'INFO_cortical_layer');             glodb.INFO_cortical_layer = [];          end
 
@@ -88,18 +88,59 @@ if ~isfield(glodb, 'AP_velocity_above');          glodb.AP_velocity_above = []; 
 if ~isfield(glodb, 'AP_velocity_below');          glodb.AP_velocity_below = [];             end
 if ~isfield(glodb, 'AP_waveform_duration');       glodb.AP_waveform_duration = [];          end
 if ~isfield(glodb, 'AP_waveform_halfwidth');      glodb.AP_waveform_halfwidth = [];         end
+if ~isfield(glodb, 'AP_waveform');                glodb.AP_waveform = {};                   end
 
 for i = 1 : unit_info.total
 
     if mod(i, 100) == 1
         disp(['PROCESSING UNIT ' num2str(i) ' OF ' num2str(unit_info.total)])
     end
+    
+    glodb.INFO_subject = {glodb.INFO_subject; {subj}};
+    glodb.INFO_session = {glodb.INFO_session; {ses}};
 
-    unit_data = baseline_correct(squeeze(glo_spks.conv(i,:,:)));
+    glodb.AP_amplitude = [glodb.AP_amplitude; unit_info.amplitude(i)];
+    glodb.AP_amplitude_cutoff = [glodb.AP_amplitude_cutoff; unit_info.amplitude_cutoff(i)];
+    glodb.AP_peak_to_trough_ratio = [glodb.AP_peak_to_trough_ratio; unit_info.PT_ratio(i)];
+    glodb.AP_cumulative_drift = [glodb.AP_cumulative_drift; unit_info.cumulative_drift(i)];
+    glodb.AP_d_prime = [glodb.AP_d_prime; unit_info.d_prime(i)];
+    glodb.AP_firing_rate = [glodb.AP_firing_rate; unit_info.firing_rate(i)];
+    glodb.AP_isi_violations = [glodb.AP_isi_violations; unit_info.isi_violations(i)];
+    glodb.AP_l_ratio = [glodb.AP_l_ratio; unit_info.l_ratio(i)];
+    glodb.AP_isolation_distance = [glodb.AP_isolation_distance; unit_info.isolation_distance(i)];
+    glodb.AP_local_index = [glodb.AP_local_index; unit_info.local_index(i)];
+    glodb.AP_max_drift = [glodb.AP_max_drift; unit_info.max_drift(i)];
+    glodb.AP_nn_hit_rate = [glodb.AP_nn_hit_rate; unit_info.nn_hit_rate(i)];
+    glodb.AP_nn_miss_rate = [glodb.AP_nn_miss_rate; unit_info.nn_miss_rate(i)];
+    glodb.AP_presence_ratio = [glodb.AP_presence_ratio; unit_info.presence_ration(i)];
+    glodb.AP_quality = [glodb.AP_quality; unit_info.quality(i)];
+    glodb.AP_recovery_slope = [glodb.AP_recovery_slope; unit_info.recovery_slope(i)];
+    glodb.AP_repolarization_slope = [glodb.AP_repolarization_slope; unit_info.repolarization_slope(i)];
+    glodb.AP_silhouette_score = [glodb.AP_silhouette_score; unit_info.silhouette_score(i)];
+    glodb.AP_signal_to_noise = [glodb.AP_signal_to_noise; unit_info.snr(i)];
+    glodb.AP_spread = [glodb.AP_spread; unit_info.spread(i)];
+    glodb.AP_velocity_above = [glodb.AP_velocity_above; unit_info.velocity_above(i)];
+    glodb.AP_velocity_below = [glodb.AP_velocity_below; unit_info.velocity_below(i)];
+    glodb.AP_waveform_duration = [glodb.AP_waveform_duration; unit_info.waveform_duration(i)];
+    glodb.AP_waveform_halfwidth = [glodb.AP_waveform_halfwidth; unit_info.waveform_halfwidth(i)];
+    glodb.AP_waveform = {glodb.AP_waveform; {unit_info.minmax_waveform(:,i)}};
+
+    unit_data = baseline_correct(squeeze(glo_spks.conv(i,:,:)), glo_spks.pre_dur*glo_spks.fs-50:glo_spks.pre_dur*glo_spks.fs);
     for j = 1 : numel(CONDITIONS)
-        for k = 1 : numel(CONDITIONS{j}{3})
 
-            temp_condition_inds = CONDITIONS{j}{2};
+        temp_condition_inds = CONDITIONS{j}{2};
+
+        if ~isfield(glodb, [CONDITIONS{j}{1} '_mean'])
+            glodb.([CONDITIONS{j}{1} '_mean']) = {};
+            glodb.([CONDITIONS{j}{1} '_sd']) = {};
+            glodb.([CONDITIONS{j}{1} '_n']) = [];
+        end
+
+        glodb.([CONDITIONS{j}{1} '_mean']) = {glodb.([CONDITIONS{j}{1} '_mean']); {mean(unit_data(:,temp_condition_inds),2)}};
+        glodb.([CONDITIONS{j}{1} '_sd']) = {glodb.([CONDITIONS{j}{1} '_sd']); {std(unit_data(:,temp_condition_inds),[],2)}};
+        glodb.([CONDITIONS{j}{1} '_n']) = [glodb.([CONDITIONS{j}{1} '_n']); sum(temp_condition_inds)];
+
+        for k = 1 : numel(CONDITIONS{j}{3})
 
             temp_time_1 = CONDITIONS{j}{3}(k);
             temp_time_2 = CONDITIONS{j}{4}(k);
@@ -138,15 +179,23 @@ for i = 1 : unit_info.total
             [~, t_val] = ttest(mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds)));
             glodb.([temp_str '_ttest']) = [glodb.([temp_str '_ttest']); t_val];
 
-            glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ; ...
-                sampsizepwr('t',[glodb.([temp_str '_mean'])(end) glodb.([temp_str '_sd'])(end)], 0, [], glodb.([temp_str '_n'])(end))];
+            if ~isnan(t_val) && t_val~=1
+                glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ; ...
+                    sampsizepwr('t',[glodb.([temp_str '_mean'])(end) glodb.([temp_str '_sd'])(end)], 0, [], glodb.([temp_str '_n'])(end))];
 
-            glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ; ...
-                sampsizepwr('t',[glodb.([temp_str '_mean'])(end) glodb.([temp_str '_sd'])(end)], 0, .8, [])];
+                glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ; ...
+                    sampsizepwr('t',[glodb.([temp_str '_mean'])(end) glodb.([temp_str '_sd'])(end)], 0, .8, [])];
+            else
+                glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ; NaN];
+                glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ; NaN];
+            end
 
             clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_str t_val
 
         end
+
+        clear temp_condition_inds
+
     end
 
     for j = 1 : numel(COMPARISONS_2_SAMPLE)
@@ -194,14 +243,21 @@ for i = 1 : unit_info.total
                 ranksum(mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_1)), ...
                 mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_2)))];
 
-            glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ; ...
-                sampsizepwr('t2',[glodb.([temp_str_1 '_mean'])(end) glodb.([temp_str_1 '_sd'])(end)], ...
-                glodb.([temp_str_2 '_mean'])(end), [], glodb.([temp_str_1 '_n'])(end))];
+            if glodb.([temp_str_1 '_sd'])(end) ~= 0
+                glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ; ...
+                    sampsizepwr('t2',[glodb.([temp_str_1 '_mean'])(end) glodb.([temp_str_1 '_sd'])(end)], ...
+                    glodb.([temp_str_2 '_mean'])(end), [], glodb.([temp_str_1 '_n'])(end))];
 
-            glodb.([temp_str '_nout']) = [ glodb.([temp_str '_nout']) ; ...
-                sampsizepwr('t2',[glodb.([temp_str_1 '_mean'])(end) glodb.([temp_str_1 '_sd'])(end)], ...
-                glodb.([temp_str_2 '_mean'])(end), .8, [])];
+                glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ; ...
+                    sampsizepwr('t2',[double(glodb.([temp_str_1 '_mean'])(end)) double(glodb.([temp_str_1 '_sd'])(end))], ...
+                    double(glodb.([temp_str_2 '_mean'])(end)), .8, [])];
+            else
+                glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ; NaN];
+                glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ; NaN];
+            end
 
+            clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_str temp_str_1 temp_str_2 temp_condition_1 temp_condition_2 temp_condition_inds_1 temp_condition_inds_2
+        
         end
     end
 
@@ -231,11 +287,11 @@ for i = 1 : unit_info.total
             temp_data = [];
             temp_group = [];
             for m = 1 : numel(COMPARISONS_GROUPWISE{j})-3
-                temp_data = [temp_data; squeeze(mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds{m})))];
+                temp_data = [temp_data, squeeze(mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds{m})))];
                 temp_group = [temp_group; ones(sum(temp_condition_inds{m}), 1).*m];
             end
 
-            glodb.([temp_str '_kwt']) = [glodb.([temp_str '_kwt']); kruskalwallis(temp_data, temp_group)];
+            glodb.([temp_str '_kwt']) = [glodb.([temp_str '_kwt']); kruskalwallis(double(temp_data)', double(temp_group), 'off')];
 
             clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_data temp_group temp_condition_inds temp_str
 

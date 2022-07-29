@@ -1,13 +1,11 @@
 function unit_evaluation(ident, unit_info, rf_info, rf_spks, opto_info, opto_spks, glo_info, glo_spks, varargin)
 
-do_save = false;
-
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
     switch varargin{varStrInd(iv)}
         case {'units'}
             units = varargin{varStrInd(iv)+1};
-        case {'save'}
+        case {'do_save'}
             do_save = varargin{varStrInd(iv)+1};
     end
 end
@@ -16,7 +14,7 @@ if ~exist('units'); units = 1:unit_info.total; end
 
 for i = units
 
-    figure; tiledlayout(6, 7, 'TileSpacing', 'tight');
+    figure('Units', 'normalized','Position',[0 0 1 1]); tiledlayout(6, 7, 'TileSpacing', 'tight');
 
     nexttile([4 2]);
     imagesc(unit_info.waveprint(:,:,i)');
@@ -103,11 +101,12 @@ for i = units
     plot_unit_info_hist(i, unit_info, 'nn_miss_rate')
 
     if exist('do_save', 'var')
-        export_fig([do_save filsep ident '-unit-' i 'uniteval'])
+        pause(0.01); fname = [do_save filesep ident '-unit-' num2str(i) '-uniteval.png'];
+        saveas(gcf,fname)
     end
 
 
-    figure; tiledlayout(8, 12);
+    figure('Units', 'normalized', 'Position',[0 0 1 1]); tiledlayout(8, 12);
     % Main comparison
     nexttile([4 4])
     plot_gloexp_p4(i, glo_info, glo_spks, '-ss', 25); hold on;
@@ -145,7 +144,8 @@ for i = units
     plot_context(i, glo_info, glo_spks, '-ss', 25)
 
     if exist('do_save', 'var')
-        export_fig([do_save filsep ident '-unit-' i 'gloeval'])
+        pause(0.01); fname = [do_save filesep ident '-unit-' num2str(i) '-gloeval.png'];
+        saveas(gcf,fname)
     end
     
     close all

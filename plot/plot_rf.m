@@ -14,7 +14,7 @@ for j = 1 : numel(uX)
     end
 end
 
-p_rf = imagesc(uX, uY, imgaussfilt(t_rf_map, 2));
+p_rf = imagesc(uX, uY, imgaussfilt(t_rf_map, 1));
 %colormap('jet')
 p_rf_cb = colorbar();
 axis square
