@@ -56,7 +56,7 @@ COMPARISONS_GROUPWISE = {...
     ...
     };
 
-if ~exist('glodb', 'var'); glodb = struct(); end
+if exist('glodb', 'var'); glodb = table2struct(glodb); else; glodb = struct(); end
 
 if ~isfield(glodb, 'INFO_subject');               glodb.INFO_subject = {};                  end
 if ~isfield(glodb, 'INFO_session');               glodb.INFO_session = {};                  end
@@ -289,11 +289,11 @@ for i = 1 : unit_info.total
             temp_data = [];
             temp_group = [];
             for m = 1 : numel(COMPARISONS_GROUPWISE{j})-3
-                temp_data = [temp_data; squeeze(mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds{m})))'];
-                temp_group = [temp_group;ones(sum(temp_condition_inds{m}), 1).*m];
+                temp_data = [temp_data, squeeze(mean(unit_data(temp_ind_1:temp_ind_2,temp_condition_inds{m})))];
+                temp_group = [temp_group,ones(sum(temp_condition_inds{m}), 1).*m];
             end
 
-            glodb.([temp_str '_kwt']) = [glodb.([temp_str '_kwt']),kruskalwallis(double(temp_data.'), double(temp_group.'), 'off')];
+            glodb.([temp_str '_kwt']) = [glodb.([temp_str '_kwt']),kruskalwallis(double(temp_data)', double(temp_group), 'off')];
 
             clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_data temp_group temp_condition_inds temp_str
 
@@ -305,5 +305,7 @@ end
 params.CONDITIONS = CONDITIONS;
 params.COMPARISONS_2_SAMPLE = COMPARISONS_2_SAMPLE;
 params.COMPARISONS_GROUPWISE = COMPARISONS_GROUPWISE;
+
+glodb = struct2table(glodb);
 
 end
