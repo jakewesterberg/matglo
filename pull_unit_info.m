@@ -18,19 +18,30 @@ end
 
 unit_info.total                     = numel(unit_info.spk_assign);
 
-unit_info.probe                     = floor(nwb.units.vectordata.get('peak_channel_id').data(:) / 968);
-unit_info.ch                        = mod(nwb.units.vectordata.get('peak_channel_id').data(:), 968);
+unit_info.subject_identifier        = repmat({nwb.general_subject.subject_id}, unit_info.total, 1);
+unit_info.subject_age               = repmat({nwb.general_subject.age}, unit_info.total, 1);
+unit_info.subject_genotype          = repmat({nwb.general_subject.genotype}, unit_info.total, 1);
+unit_info.subject_sex               = repmat({nwb.general_subject.sex}, unit_info.total, 1);
+unit_info.subject_species           = repmat({nwb.general_subject.species}, unit_info.total, 1);
+unit_info.subject_strain            = repmat({nwb.general_subject.strain}, unit_info.total, 1);
+
+unit_info.probe                     = floor(nwb.units.vectordata.get('peak_channel_id').data(:) / 1000);
+unit_info.channel                   = mod(nwb.units.vectordata.get('peak_channel_id').data(:), 1000)+1;
 
 for i = 1 : unit_info.total
     unit_info.waveprint(:,:,i)      = nwb.units.waveform_mean.data(:,i*384-383:i*384);
     try
-        unit_info.waveform(:,i)     = unit_info.waveprint(:,nwb.units.vectordata.get('peak_channel_id').data(i),i);
+        unit_info.waveform(:,i)     = unit_info.waveprint(:,mod(nwb.units.vectordata.get('peak_channel_id').data(i), 1000)+1,i);
     catch
         unit_info.waveform(:,i)     = zeros(82,1);
     end
-    unit_info.e_waveform(:,i)       = nwb.units.waveform_mean.data(:,nwb.units.vectordata.get('waveform_mean_index').data(i));
-    [~,ind1] = max(abs(max(unit_info.waveprint(:,:,i))-min(unit_info.waveprint(:,:,i))));
-    unit_info.minmax_waveform(:,i)       = unit_info.waveprint(:,ind1,i);
+    [~,ind1]                        = max(abs(max(unit_info.waveprint(:,:,i))-min(unit_info.waveprint(:,:,i))));
+    unit_info.minmax_channel(:,i)   = ind1;
+    unit_info.minmax_waveform(:,i)  = unit_info.waveprint(:,ind1,i);
+
+    unit_info.area{i}               = nwb.general_extracellular_ephys_electrodes.vectordata.get('location').data{unit_info.channel(i)+unit_info.probe(i)*384};
+    unit_info.minmax_area{i}        = nwb.general_extracellular_ephys_electrodes.vectordata.get('location').data{unit_info.minmax_channel(i)+unit_info.probe(i)*384};
+
 end
 
 % misc. kilosort output
