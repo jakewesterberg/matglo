@@ -5,6 +5,9 @@ for iv = 1:length(varStrInd)
     switch varargin{varStrInd(iv)}
         case {'-d','glodb'}
             glodb = varargin{varStrInd(iv)+1};
+        case {'-o','opto'}
+            opto_info = varargin{varStrInd(iv)+1};
+            opto_spks = varargin{varStrInd(iv)+2};
     end
 end
 
@@ -96,7 +99,7 @@ for i = 1 : unit_info.total
     if mod(i, 100) == 1
         disp(['PROCESSING UNIT ' num2str(i) ' OF ' num2str(unit_info.total)])
     end
-    
+
     glodb.INFO_subject = [glodb.INFO_subject, subj];
     glodb.INFO_session = [glodb.INFO_session, ses];
 
@@ -128,6 +131,8 @@ for i = 1 : unit_info.total
     glodb.AP_waveprint = [glodb.AP_waveprint,unit_info.waveprint(:,:,i)];
 
     unit_data = baseline_correct(squeeze(glo_spks.conv(i,:,:)), glo_spks.pre_dur*glo_spks.fs-50:glo_spks.pre_dur*glo_spks.fs);
+    unit_data_nobc = squeeze(glo_spks.conv(i,:,:));
+
     for j = 1 : numel(CONDITIONS)
 
         temp_condition_inds = CONDITIONS{j}{2};
@@ -136,11 +141,19 @@ for i = 1 : unit_info.total
             glodb.([CONDITIONS{j}{1} '_mean']) = {};
             glodb.([CONDITIONS{j}{1} '_sd']) = {};
             glodb.([CONDITIONS{j}{1} '_n']) = [];
+            glodb.([CONDITIONS{j}{1} '_baseline_mean']) = [];
+            glodb.([CONDITIONS{j}{1} '_baseline_sd']) = [];
         end
 
         glodb.([CONDITIONS{j}{1} '_mean']) = [glodb.([CONDITIONS{j}{1} '_mean']),mean(unit_data(:,temp_condition_inds),2)];
         glodb.([CONDITIONS{j}{1} '_sd']) = [glodb.([CONDITIONS{j}{1} '_sd']),std(unit_data(:,temp_condition_inds),[],2)];
         glodb.([CONDITIONS{j}{1} '_n']) = [glodb.([CONDITIONS{j}{1} '_n']),sum(temp_condition_inds)];
+
+        glodb.([CONDITIONS{j}{1} '_baseline_mean']) = [glodb.([CONDITIONS{j}{1} '_baseline_mean']),...
+            mean(mean(unit_data_nobc(glo_spks.pre_dur*glo_spks.fs-50:glo_spks.pre_dur*glo_spks.fs,temp_condition_inds)))];
+
+        glodb.([CONDITIONS{j}{1} '_baseline_sd']) = [glodb.([CONDITIONS{j}{1} '_baseline_sd']),...
+            std(mean(unit_data_nobc(glo_spks.pre_dur*glo_spks.fs-50:glo_spks.pre_dur*glo_spks.fs,temp_condition_inds)))];
 
         for k = 1 : numel(CONDITIONS{j}{3})
 
@@ -156,7 +169,7 @@ for i = 1 : unit_info.total
                 glodb.([temp_str '_mean']) = [];
                 glodb.([temp_str '_median']) = [];
                 glodb.([temp_str '_sd']) = [];
-                glodb.([temp_str '_n']) = []; 
+                glodb.([temp_str '_n']) = [];
                 glodb.([temp_str '_wsr']) = [];
                 glodb.([temp_str '_ttest']) = [];
                 glodb.([temp_str '_power']) = [];
@@ -259,7 +272,7 @@ for i = 1 : unit_info.total
             end
 
             clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_str temp_str_1 temp_str_2 temp_condition_1 temp_condition_2 temp_condition_inds_1 temp_condition_inds_2
-        
+
         end
     end
 
@@ -297,6 +310,56 @@ for i = 1 : unit_info.total
 
             clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_data temp_group temp_condition_inds temp_str
 
+        end
+    end
+
+    if exist('opto_info', 'var')
+
+        opto_data = squeeze(opto_spks.conv(i,:,:));
+
+        bl_epoch = opto_spks.pre_dur*opto_spks.fs - (opto_spks.fs/1000*50) : opto_spks.pre_dur*opto_spks.fs;
+        stim_epoch = opto_spks.pre_dur*opto_spks.fs : opto_spks.pre_dur*opto_spks.fs + opto_spks.fs*opto_spks.on_dur;
+
+        types = unique(opto_info.type);
+        levels = unique(opto_info.level);
+        for j = 1 : numel(levels)
+            for k = 1 : numel(types)
+
+                if strcmp(types(k), '5 hz pulse train')
+                    inds = find(strcmp(opto_info.type, '5 hz pulse train') & opto_info.level==levels(j));
+                    str = ['OPTO_5hz_' strrep(num2str(levels(j)), '.', 'point')];
+                elseif j == 2
+                    inds = find(strcmp(opto_info.type, '40 hz pulse train') & opto_info.level==levels(j));
+                    str = ['OPTO_40hz_' strrep(num2str(levels(j)), '.', 'point')];
+                else
+                    inds = find(strcmp(opto_info.type, 'raised_cosine') & opto_info.level==levels(j));
+                    str = ['OPTO_cos_' strrep(num2str(levels(j)), '.', 'point')];
+                end
+
+                if ~isfield(glodb, [str '_mean'])
+                    glodb.([str '_mean']) = {};
+                    glodb.([str '_sd']) = {};
+                    glodb.([str '_n']) = [];
+                    glodb.([str '_wsr']) = [];
+                    glodb.([str '_baseline_mean']) = [];
+                    glodb.([str '_stim_mean']) = [];
+                    glodb.([str '_baseline_sd']) = [];
+                    glodb.([str '_stim_sd']) = [];
+                end
+
+                glodb.([str '_mean']) = [ glodb.([str '_mean']), mean(baseline_correct(opto_data(:,inds),bl_epoch),2) ];
+                glodb.([str '_sd']) = [ glodb.([str '_sd']), std(baseline_correct(opto_data(:,inds),bl_epoch), [], 2) ];
+                glodb.([str '_n']) = [ glodb.([str '_n']), numel(inds) ];
+
+                glodb.([str '_wsr']) = [glodb.([str '_wsr']),...
+                    signrank(mean(baseline_correct(opto_data(stim_epoch,inds), bl_epoch)))];
+
+                glodb.([str '_baseline_mean']) = [ glodb.([str '_baseline_mean']), mean(mean(opto_data(bl_epoch,inds))) ];
+                glodb.([str '_stim_mean']) = [ glodb.([str '_stim_mean']), mean(mean(opto_data(stim_epoch,inds))) ];
+                glodb.([str '_baseline_sd']) = [ glodb.([str '_baseline_sd']), std(mean(opto_data(bl_epoch,inds))) ];
+                glodb.([str '_stim_sd']) = [ glodb.([str '_stim_sd']), std(mean(opto_data(stim_epoch,inds))) ];
+
+            end
         end
     end
 
