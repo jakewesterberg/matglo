@@ -1,4 +1,4 @@
-function [glodb, params] = glo_database(subj, ses, unit_info, glo_info, glo_spks, varargin)
+function [glodb, params] = glo_database(unit_info, glo_info, glo_spks, varargin)
 
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
@@ -61,11 +61,17 @@ COMPARISONS_GROUPWISE = {...
 
 if ~exist('glodb', 'var'); glodb = struct(); end
 
-if ~isfield(glodb, 'INFO_subject');               glodb.INFO_subject = {};                  end
-if ~isfield(glodb, 'INFO_session');               glodb.INFO_session = {};                  end
-%if ~isfield(glodb, 'INFO_probe');                      glodb.INFO_probe = [];                         end
-%if ~isfield(glodb, 'INFO_brain_area');                 glodb.INFO_brain_area = [];          end
-%if ~isfield(glodb, 'INFO_cortical_layer');             glodb.INFO_cortical_layer = [];          end
+if ~isfield(glodb, 'INFO_identifier');            glodb.INFO_identifier = {};               end
+if ~isfield(glodb, 'INFO_age');                   glodb.INFO_age = [];                      end
+if ~isfield(glodb, 'INFO_genotype');              glodb.INFO_genotype = {};                 end
+if ~isfield(glodb, 'INFO_sex');                   glodb.INFO_sex = {};                      end
+if ~isfield(glodb, 'INFO_species');               glodb.INFO_species = {};                  end
+if ~isfield(glodb, 'INFO_strain');                glodb.INFO_strain = {};                   end
+if ~isfield(glodb, 'INFO_area');                  glodb.INFO_area = {};                     end
+if ~isfield(glodb, 'INFO_area_minmax');           glodb.INFO_area_minmax = {};              end
+if ~isfield(glodb, 'INFO_probe');                 glodb.INFO_probe = {};                    end
+if ~isfield(glodb, 'INFO_channel');               glodb.INFO_channel = {};                  end
+if ~isfield(glodb, 'INFO_channel_minmax');        glodb.INFO_channel_minmax = {};           end
 
 if ~isfield(glodb, 'AP_peak_to_trough_ratio');    glodb.AP_peak_to_trough_ratio = [];       end
 if ~isfield(glodb, 'AP_amplitude');               glodb.AP_amplitude = [];                  end
@@ -100,8 +106,17 @@ for i = 1 : unit_info.total
         disp(['PROCESSING UNIT ' num2str(i) ' OF ' num2str(unit_info.total)])
     end
 
-    glodb.INFO_subject = [glodb.INFO_subject, subj];
-    glodb.INFO_session = [glodb.INFO_session, ses];
+    glodb.INFO_identifier = [glodb.INFO_identifier, unit_info.subject_identifier(i)];
+    glodb.INFO_age = [glodb.INFO_age, unit_info.subject_age(i)];
+    glodb.INFO_genotype = [glodb.INFO_genotype, unit_info.subject_genotype(i)];
+    glodb.INFO_sex = [glodb.INFO_sex, unit_info.subject_sex(i) ];
+    glodb.INFO_species = [glodb.INFO_species, unit_info.subject_species(i)];
+    glodb.INFO_strain = [glodb.INFO_strain, unit_info.subject_strain(i)];
+    glodb.INFO_area = [glodb.INFO_area, unit_info.area(i)];
+    glodb.INFO_area_minmax = [glodb.INFO_area_minmax, unit_info.minmax_area(i)];
+    glodb.INFO_probe = [glodb.INFO_probe, unit_info.probe(i)];
+    glodb.INFO_channel = [glodb.INFO_channel, unit_info.channel(i)];
+    glodb.INFO_channel_minmax = [glodb.INFO_channel_minmax, unit_info.minmax_channel(i)];
 
     glodb.AP_amplitude = [glodb.AP_amplitude, unit_info.amplitude(i)];
     glodb.AP_amplitude_cutoff = [glodb.AP_amplitude_cutoff,unit_info.amplitude_cutoff(i)];
@@ -328,10 +343,10 @@ for i = 1 : unit_info.total
                 if strcmp(types(k), '5 hz pulse train')
                     inds = find(strcmp(opto_info.type, '5 hz pulse train') & opto_info.level==levels(j));
                     str = ['OPTO_5hz_' strrep(num2str(levels(j)), '.', 'point')];
-                elseif j == 2
+                elseif strcmp(types(k), '40 hz pulse train')
                     inds = find(strcmp(opto_info.type, '40 hz pulse train') & opto_info.level==levels(j));
                     str = ['OPTO_40hz_' strrep(num2str(levels(j)), '.', 'point')];
-                else
+                elseif strcmp(types(k), 'raised_cosine')
                     inds = find(strcmp(opto_info.type, 'raised_cosine') & opto_info.level==levels(j));
                     str = ['OPTO_cos_' strrep(num2str(levels(j)), '.', 'point')];
                 end
