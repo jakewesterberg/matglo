@@ -1,0 +1,219 @@
+slim_pickings = find(strcmp(glodb.AP_quality, 'good') & ...
+    (glodb.GLO_gloexp_pres1_40_500ms_wsr < 0.05 | ...
+    glodb.GLO_gloexp_global_oddball_40_500ms_wsr < 0.05 | ...
+    glodb.GLO_gloexp_local_oddball_40_500ms_wsr < 0.05) & ...
+    glodb.GLO_rndctl_pres1_40_500ms_wsr < 0.05 & ...
+    glodb.GLO_seqctl_pres1_40_500ms_wsr < 0.05 & ...
+    abs(glodb.GLO_gloexp_pres1_40_500ms_mean) > 2 & ...
+    abs(glodb.GLO_rndctl_pres1_40_500ms_mean) > 2 & ...
+    abs(glodb.GLO_seqctl_pres1_40_500ms_mean) > 2);
+
+n_slim_pickings = numel(slim_pickings);
+
+global_units = find(glodb.GLO_global_oddball_response_type_2_40_500ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_global_oddball_response_type_2_40_90ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_global_oddball_response_type_2_100_500ms_mwu(slim_pickings) < 0.05);
+
+n_global_units = numel(global_units);
+
+pct_global_units = numel(global_units) / n_slim_pickings * 100;
+
+global_units_pos = find((glodb.GLO_global_oddball_response_type_2_40_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_global_oddball_response_type_2_40_500ms_mean_diff(slim_pickings) > 0) | ...
+    (glodb.GLO_global_oddball_response_type_2_40_90ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_global_oddball_response_type_2_40_90ms_mean_diff(slim_pickings) > 0) | ...
+    (glodb.GLO_global_oddball_response_type_2_100_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_global_oddball_response_type_2_100_500ms_mean_diff(slim_pickings) > 0));
+
+n_global_units_pos = numel(global_units_pos);
+
+pct_global_units_pos = numel(global_units_pos) / n_slim_pickings * 100;
+
+global_units_neg = find((glodb.GLO_global_oddball_response_type_1_40_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_global_oddball_response_type_2_40_500ms_mean_diff(slim_pickings) < 0) | ...
+    (glodb.GLO_global_oddball_response_type_2_40_90ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_global_oddball_response_type_2_40_90ms_mean_diff(slim_pickings) < 0) | ...
+    (glodb.GLO_global_oddball_response_type_2_100_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_global_oddball_response_type_2_100_500ms_mean_diff(slim_pickings) < 0));
+
+n_global_units_neg = numel(global_units_neg);
+
+pct_global_units_neg = numel(global_units_neg) / n_slim_pickings * 100;
+
+local_units = find(glodb.GLO_local_oddball_response_type_1_40_500ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_local_oddball_response_type_1_100_500ms_mwu(slim_pickings) < 0.05);
+
+n_local_units = numel(local_units);
+
+pct_local_units = numel(local_units) / n_slim_pickings * 100;
+
+local_units_pos = find((glodb.GLO_local_oddball_response_type_1_40_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mean_diff(slim_pickings) > 0) | ...
+    (glodb.GLO_local_oddball_response_type_1_40_90ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mean_diff(slim_pickings) > 0) | ...
+    (glodb.GLO_local_oddball_response_type_1_100_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mean_diff(slim_pickings) > 0));
+
+n_local_units_pos = numel(local_units_pos);
+
+pct_local_units_pos = numel(local_units_pos) / n_slim_pickings * 100;
+
+local_units_neg = find((glodb.GLO_local_oddball_response_type_1_40_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mean_diff(slim_pickings) < 0) | ...
+    (glodb.GLO_local_oddball_response_type_1_40_90ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mean_diff(slim_pickings) < 0) | ...
+    (glodb.GLO_local_oddball_response_type_1_100_500ms_mwu(slim_pickings) < 0.05 & ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mean_diff(slim_pickings) < 0));
+
+n_local_units_neg = numel(local_units_neg);
+
+pct_local_units_neg = numel(local_units_neg) / n_slim_pickings * 100;
+
+local_global_detectors = find((glodb.GLO_global_oddball_response_type_2_40_500ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_global_oddball_response_type_2_40_90ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_global_oddball_response_type_2_100_500ms_mwu(slim_pickings) < 0.05) & ...
+    (glodb.GLO_local_oddball_response_type_1_40_500ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_local_oddball_response_type_1_40_90ms_mwu(slim_pickings) < 0.05 | ...
+    glodb.GLO_local_oddball_response_type_1_100_500ms_mwu(slim_pickings) < 0.05));
+
+n_local_global_detectors = numel(local_global_detectors);
+
+pct_local_global_detectors = numel(local_global_detectors) / n_slim_pickings * 100;
+
+both_units = local_units(ismember(local_units, global_units));
+neither_units = slim_pickings(~ismember(slim_pickings, global_units) & ~ismember(slim_pickings, local_units));
+
+n_both_units = numel(both_units);
+n_neither_units = numel(neither_units);
+
+opto_activated = [];
+
+for i = 1:numel(slim_pickings)
+    if (glodb.OPTO_40hz_1point35_wsr(slim_pickings(i)) < 0.05 & ...
+            max(abs(glodb.OPTO_40hz_1point35_mean{slim_pickings(i)})) > 10) | ...
+            (glodb.OPTO_5hz_1point35_wsr(slim_pickings(i)) < 0.05 & ...
+            max(abs(glodb.OPTO_5hz_1point35_mean{slim_pickings(i)})) > 10)
+
+        opto_activated = [opto_activated i];
+
+    end
+end
+n_opto_activated = numel(opto_activated);
+
+pct_intrn = n_opto_activated / n_slim_pickings * 100;
+
+
+intrn_global = global_units(ismember(global_units, opto_activated));
+intrn_global_pos = global_units_pos(ismember(global_units_pos, opto_activated));
+intrn_global_neg = global_units_neg(ismember(global_units_neg, opto_activated));
+
+intrn_local = local_units(ismember(local_units, opto_activated));
+intrn_local_pos = local_units_pos(ismember(local_units_pos, opto_activated));
+intrn_local_neg = local_units_neg(ismember(local_units_neg, opto_activated));
+
+intrn_both = intrn_local(ismember(intrn_local, intrn_global));
+intrn_neither = opto_activated(~ismember(opto_activated, global_units) & ~ismember(opto_activated, local_units));
+
+
+n_intrn_global = numel(intrn_global);
+n_intrn_global_pos = numel(intrn_global_pos);
+n_intrn_global_neg = numel(intrn_global_neg);
+n_intrn_local = numel(intrn_local);
+n_intrn_local_pos = numel(intrn_local_pos);
+n_intrn_local_neg = numel(intrn_local_neg);
+n_intrn_both = numel(intrn_both);
+n_intrn_neither = numel(intrn_neither);
+
+
+pct_intrn_global = n_intrn_global / n_global_units  * 100;
+pct_intrn_global_pos = n_intrn_global_pos / n_global_units_pos  * 100;
+pct_intrn_global_neg = n_intrn_global_neg / n_global_units_neg  * 100;
+pct_intrn_local = n_intrn_local / n_local_units  * 100;
+pct_intrn_local_pos = n_intrn_local_pos / n_local_units_pos  * 100;
+pct_intrn_local_neg = n_intrn_local_neg / n_local_units_neg  * 100;
+pct_intrn_both = n_intrn_both / n_both_units  * 100;
+pct_intrn_neither = n_intrn_neither / n_neither_units  * 100;
+
+
+pct_intrn_global_intrn = n_intrn_global / n_opto_activated  * 100;
+pct_intrn_global_pos_intrn = n_intrn_global_pos / n_intrn_global  * 100;
+pct_intrn_global_neg_intrn = n_intrn_global_neg / n_intrn_global  * 100;
+pct_intrn_local_intrn = n_intrn_local / n_opto_activated  * 100;
+pct_intrn_local_pos_intrn = n_intrn_local_pos / n_intrn_local  * 100;
+pct_intrn_local_neg_intrn = n_intrn_local_neg / n_intrn_local  * 100;
+pct_intrn_both_intrn = n_intrn_both / n_opto_activated  * 100;
+pct_intrn_neither_intrn = n_intrn_neither / n_opto_activated  * 100;
+
+
+PV = strcmp(glodb.INFO_genotype, glodb.INFO_genotype{1}); 
+SST = strcmp(glodb.INFO_genotype, glodb.INFO_genotype{end}); 
+
+n_PV_intrn = sum(PV(slim_pickings(opto_activated)));
+n_SST_intrn = sum(SST(slim_pickings(opto_activated)));
+
+
+n_PV_intrn_global = sum(PV(slim_pickings(intrn_global)));
+n_PV_intrn_global_pos = sum(PV(slim_pickings(intrn_global_pos)));
+n_PV_intrn_global_neg = sum(PV(slim_pickings(intrn_global_neg)));
+n_PV_intrn_local = sum(PV(slim_pickings(intrn_local)));
+n_PV_intrn_local_pos = sum(PV(slim_pickings(intrn_local_pos)));
+n_PV_intrn_local_neg = sum(PV(slim_pickings(intrn_local_neg)));
+n_PV_intrn_both = sum(PV(slim_pickings(intrn_both)));
+n_PV_intrn_neither = sum(PV(slim_pickings(intrn_neither)));
+
+
+n_SST_intrn_global = sum(SST(slim_pickings(intrn_global)));
+n_SST_intrn_global_pos = sum(SST(slim_pickings(intrn_global_pos)));
+n_SST_intrn_global_neg = sum(SST(slim_pickings(intrn_global_neg)));
+n_SST_intrn_local = sum(SST(slim_pickings(intrn_local)));
+n_SST_intrn_local_pos = sum(SST(slim_pickings(intrn_local_pos)));
+n_SST_intrn_local_neg = sum(SST(slim_pickings(intrn_local_neg)));
+n_SST_intrn_both = sum(SST(slim_pickings(intrn_both)));
+n_SST_intrn_neither = sum(SST(slim_pickings(intrn_neither)));
+
+
+pct_PV_intrn_global = sum(PV(slim_pickings(intrn_global)))  / n_intrn_global * 100;
+pct_PV_intrn_global_pos = sum(PV(slim_pickings(intrn_global_pos))) / n_PV_intrn_global * 100;
+pct_PV_intrn_global_neg = sum(PV(slim_pickings(intrn_global_neg))) / n_PV_intrn_global * 100;
+pct_PV_intrn_local = sum(PV(slim_pickings(intrn_local))) / n_intrn_local * 100;
+pct_PV_intrn_local_pos = sum(PV(slim_pickings(intrn_local_pos))) / n_PV_intrn_local * 100;
+pct_PV_intrn_local_neg = sum(PV(slim_pickings(intrn_local_neg))) / n_PV_intrn_local * 100;
+pct_PV_intrn_both = sum(PV(slim_pickings(intrn_both))) / n_intrn_both * 100;
+pct_PV_intrn_neither = sum(PV(slim_pickings(intrn_neither))) / n_intrn_neither * 100;
+
+
+pct_SST_intrn_global = sum(SST(slim_pickings(intrn_global))) / n_intrn_global * 100;
+pct_SST_intrn_global_pos = sum(SST(slim_pickings(intrn_global_pos))) / n_SST_intrn_global * 100;
+pct_SST_intrn_global_neg = sum(SST(slim_pickings(intrn_global_neg))) / n_SST_intrn_global * 100;
+pct_SST_intrn_local = sum(SST(slim_pickings(intrn_local))) / n_intrn_local * 100;
+pct_SST_intrn_local_pos = sum(SST(slim_pickings(intrn_local_pos))) / n_SST_intrn_local * 100;
+pct_SST_intrn_local_neg = sum(SST(slim_pickings(intrn_local_neg))) / n_SST_intrn_local * 100;
+pct_SST_intrn_both = sum(SST(slim_pickings(intrn_both))) / n_intrn_both * 100;
+pct_SST_intrn_neither = sum(SST(slim_pickings(intrn_neither))) / n_intrn_neither * 100;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
