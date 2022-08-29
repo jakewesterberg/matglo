@@ -192,11 +192,26 @@ pct_SST_intrn_local_neg = sum(SST(slim_pickings(intrn_local_neg))) / n_SST_intrn
 pct_SST_intrn_both = sum(SST(slim_pickings(intrn_both))) / n_intrn_both * 100;
 pct_SST_intrn_neither = sum(SST(slim_pickings(intrn_neither))) / n_intrn_neither * 100;
 
-
-
-
-
-
+% figure(); hold on;
+% for i = slim_pickings(intrn_global)
+%     if SST(i)
+%         c = [1 0 0 .25];
+%     elseif PV(i)
+%         c = [0 1 0 .25];
+%     end
+% 
+%     x = (glodb.GLO_gloexp_global_oddball_mean{i} - ...
+%         glodb.GLO_seqctl_matched_global_stimulus_mean{i}) ./ ...
+%         max(abs(glodb.GLO_gloexp_global_oddball_mean{i} - ...
+%         glodb.GLO_seqctl_matched_global_stimulus_mean{i}));
+% 
+%     plot(-500:1001, smooth(x,50), 'color', c)
+% end
+% set(gca,'xlim', [-100 750])
+% 
+% 
+% 
+% 
 
 
 

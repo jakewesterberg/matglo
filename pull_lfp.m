@@ -5,7 +5,6 @@ function lfp = pull_lfp(lfp_dir, ss, varargin)
 % jakewesterberg@gmail.com
 
 % defaults
-fs = 1000; % at or below 1000
 pre_dur = 1;
 on_dur = 1;
 off_dur = 1;
@@ -17,8 +16,6 @@ file_name = 'default_file_name.mat';
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
     switch varargin{varStrInd(iv)}
-        case {'-f','fs','sampling_frequency'}
-            fs = varargin{varStrInd(iv)+1};
         case {'-pred', 'pre_dur'}
             pre_dur = varargin{varStrInd(iv)+1};
         case {'-ond', 'on_dur'}
@@ -41,16 +38,18 @@ switch storage_type
         probe_files = find_in_dir(lfp_dir, 'probe');
         n_probes = numel(probe_files);
 
-        lfp_data_length =  numel([ceil((ss.on(1)-pre_dur)*1000) : ceil((ss.on(1)+on_dur)*1000), ...
-            ceil(ss.off(1)*1000) : ceil((ss.off(1)+off_dur)*1000)]);
+        nwb = nwbRead(probe_files{i});
+
+        lfp_data_length =  numel([ceil((ss.on(1)-pre_dur)*fs) : ceil((ss.on(1)+on_dur)*fs), ...
+            ceil(ss.off(1)*fs) : ceil((ss.off(1)+off_dur)*fs)]);
 
         save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3')
         lfp = matfile([file_path file_name], 'Writable', true);
         lfp.cont = zeros(n_probes*384, lfp_data_length, ss.total_trials, 'single');
-        
+
         for j = 1 : n_probes
 
-            nwb = nwbRead(probe_files{i});
+            if j ~= 1; nwb = nwbRead(probe_files{i}); end
 
             cont_data = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000, 'single');
 
@@ -62,8 +61,6 @@ switch storage_type
 
         end
         clear cont_data
-
-
 
 %     case 'structure'
 % 
