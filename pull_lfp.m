@@ -51,10 +51,10 @@ switch storage_type
 
             if j ~= 1; nwb = nwbRead(probe_files{i}); end
 
-            cont_data = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000, 'single');
+            cont_data = nwb.acquisition.get(['probe_' num2str(j-1) '_lfp']).electricalseries.get(['probe_' num2str(j-1) '_lfp_data']).data;
 
             for i = 1 : ss.total_trials
-                lfp.conv(j,1:lfp_data_length,i)   = ...
+                lfp.conv((j*384)-383:j*384,1:lfp_data_length,i)   = ...
                     [cont_data(:, ceil((ss.on(i)-lfp.pre_dur)*1000) : ceil((ss.on(i)+lfp.on_dur)*1000)), ...
                     cont_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+lfp.off_dur)*1000))];
             end
@@ -62,26 +62,5 @@ switch storage_type
         end
         clear cont_data
 
-%     case 'structure'
-% 
-%         lfp.fs = fs; % at or below 1000
-%         lfp.pre_dur = pre_dur;
-%         lfp.on_dur = on_dur;
-%         lfp.off_dur = off_dur;
-% 
-%         lfp.conv                               = nan(unit_info.total, ...
-%             ceil(lfp.fs*(lfp.pre_dur+lfp.on_dur+lfp.off_dur)), ...
-%             ss.total_trials);
-%         for j = 1 : unit_info.total
-%             cont_data                               = zeros(1, ceil(max(unit_info.spk_times(:)) * 1000)+1000);
-%             cont_data(1, ceil(unit_info.spk_times(unit_info.spk_unit == j) * 1000))   = 1;
-%             cont_data                               = single(cont_data);
-%             cont_data                               = spks_conv(cont_data, spks_kernel('psp')) .* 1000;
-%             for i = 1 : ss.total_trials
-%                 lfp.cnv(j,:,i)                     = [cont_data(:, ceil((ss.on(i)-lfp.pre_dur)*1000) : ceil((ss.on(i)+lfp.on_dur)*1000)), ...
-%                     cont_data(:, ceil(ss.off(i)*1000) : ceil((ss.off(i)+lfp.off_dur)*1000))];
-%             end
-%             clear cont_data
-%         end
 end
 end
