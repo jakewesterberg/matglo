@@ -363,9 +363,6 @@ for i = 1 : unit_info.total
 
             temp_str = strrep([COMPARISONS_2_SAMPLE{j}{1} '_' num2str(temp_time_1) '_' num2str(temp_time_2) 'ms'], '-', 'n');
 
-            temp_str_1 = strrep([CONDITIONS{temp_condition_1}{1} '_' num2str(temp_time_1) '_' num2str(temp_time_2) 'ms'], '-', 'n');
-            temp_str_2 = strrep([CONDITIONS{temp_condition_2}{1} '_' num2str(temp_time_1) '_' num2str(temp_time_2) 'ms'], '-', 'n');
-
             if ~isfield(glodb, [temp_str '_mean_diff'])
                 glodb.([temp_str '_mean_diff']) = [];
                 glodb.([temp_str '_median_diff']) = [];
@@ -377,14 +374,18 @@ for i = 1 : unit_info.total
             switch is_df_1
                 case true
                     temp_dat_1 = unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_1_1) - unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_1_2);
+                    temp_str_1 = strrep([DIFFERENCE_FUNCTIONS{temp_condition_1}{1} '_' num2str(temp_time_1) '_' num2str(temp_time_2) 'ms'], '-', 'n');
                 case false
+                    temp_str_1 = strrep([CONDITIONS{temp_condition_1}{1} '_' num2str(temp_time_1) '_' num2str(temp_time_2) 'ms'], '-', 'n');
                     temp_dat_1 = unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_1);
             end
 
             switch is_df_2
                 case true
                     temp_dat_2 = unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_2_1) - unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_2_2);
+                    temp_str_2 = strrep([DIFFERENCE_FUNCTIONS{temp_condition_2}{1} '_' num2str(temp_time_1) '_' num2str(temp_time_2) 'ms'], '-', 'n');
                 case false
+                    temp_str_2 = strrep([CONDITIONS{temp_condition_2}{1} '_' num2str(temp_time_1) '_' num2str(temp_time_2) 'ms'], '-', 'n');
                     temp_dat_2 = unit_data(temp_ind_1:temp_ind_2,temp_condition_inds_2);
             end
 
@@ -410,7 +411,8 @@ for i = 1 : unit_info.total
                 glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ,NaN];
             end
 
-            clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_str temp_str_1 temp_str_2 temp_condition_1 temp_condition_2 temp_condition_inds_1 temp_condition_inds_2 temp_dat_1 temp_dat_2
+            clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_str temp_condition_1 temp_condition_2 temp_condition_inds_1 temp_condition_inds_2 temp_dat_1 temp_dat_2
+            clear  temp_str_1 temp_str_2
 
         end
     end
