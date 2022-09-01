@@ -367,8 +367,8 @@ for i = 1 : unit_info.total
                 glodb.([temp_str '_mean_diff']) = [];
                 glodb.([temp_str '_median_diff']) = [];
                 glodb.([temp_str '_mwu']) = [];
-                glodb.([temp_str '_power']) = [];
-                glodb.([temp_str '_nout_point8']) = [];
+%                 glodb.([temp_str '_power']) = [];
+%                 glodb.([temp_str '_nout_point8']) = [];
             end
 
             switch is_df_1
@@ -397,19 +397,19 @@ for i = 1 : unit_info.total
 
             glodb.([temp_str '_mwu']) = [glodb.([temp_str '_mwu']),...
                 ranksum(mean(temp_dat_1), mean(temp_dat_2))];
-
-            if glodb.([temp_str_1 '_sd'])(end) ~= 0
-                glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ,...
-                    sampsizepwr('t2',[glodb.([temp_str_1 '_mean'])(end) glodb.([temp_str_1 '_sd'])(end)], ...
-                    glodb.([temp_str_2 '_mean'])(end), [], glodb.([temp_str_1 '_n'])(end))];
-
-                glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ,...
-                    sampsizepwr('t2',[double(glodb.([temp_str_1 '_mean'])(end)) double(glodb.([temp_str_1 '_sd'])(end))], ...
-                    double(glodb.([temp_str_2 '_mean'])(end)), .8, [])];
-            else
-                glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ,NaN];
-                glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ,NaN];
-            end
+% 
+%             if glodb.([temp_str_1 '_sd'])(end) ~= 0
+%                 glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ,...
+%                     sampsizepwr('t2',[glodb.([temp_str_1 '_mean'])(end) glodb.([temp_str_1 '_sd'])(end)], ...
+%                     glodb.([temp_str_2 '_mean'])(end), [], glodb.([temp_str_1 '_n'])(end))];
+% 
+%                 glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ,...
+%                     sampsizepwr('t2',[double(glodb.([temp_str_1 '_mean'])(end)) double(glodb.([temp_str_1 '_sd'])(end))], ...
+%                     double(glodb.([temp_str_2 '_mean'])(end)), .8, [])];
+%             else
+%                 glodb.([temp_str '_power']) = [ glodb.([temp_str '_power']) ,NaN];
+%                 glodb.([temp_str '_nout_point8']) = [ glodb.([temp_str '_nout_point8']) ,NaN];
+%             end
 
             clear temp_time_1 temp_time_2 temp_ind_1 temp_ind_2 temp_str temp_condition_1 temp_condition_2 temp_condition_inds_1 temp_condition_inds_2 temp_dat_1 temp_dat_2
             clear  temp_str_1 temp_str_2

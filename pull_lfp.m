@@ -43,7 +43,7 @@ switch storage_type
         lfp_data_length =  numel([ceil((ss.on(1)-pre_dur)*fs) : ceil((ss.on(1)+on_dur)*fs), ...
             ceil(ss.off(1)*fs) : ceil((ss.off(1)+off_dur)*fs)]);
 
-        save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3')
+        save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3', '-nocompression')
         lfp = matfile([file_path file_name], 'Writable', true);
         lfp.cont = zeros(n_probes*384, lfp_data_length, ss.total_trials, 'single');
 

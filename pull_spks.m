@@ -47,7 +47,7 @@ switch storage_type
         conv_data_length                        =  numel([ceil((ss.on(1)-pre_dur)*1000) : ceil((ss.on(1)+on_dur)*1000), ...
                                                         ceil(ss.off(1)*1000) : ceil((ss.off(1)+off_dur)*1000)]);
 
-        save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3')
+        save([file_path file_name], 'fs', 'pre_dur', 'on_dur', 'off_dur', 'file_name', '-v7.3', '-nocompression')
         spks = matfile([file_path file_name], 'Writable', true);
         spks.conv = zeros(unit_info.total, conv_data_length, ss.total_trials, 'single');
         spks.bin  = zeros(unit_info.total, conv_data_length, ss.total_trials, 'logical');
