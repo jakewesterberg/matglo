@@ -38,8 +38,8 @@ switch storage_type
         probe_files = find_in_dir(bhv_dir, 'sub');
         nwb = nwbRead(probe_files{1});
 
-        eye_fs = 60; % Hard coded as this is not included in the nwb file as of yet. Can be determined from the timestamps.
-        wheel_fs = 60; % Hard coded as this is not included in the nwb file as of yet. Can be determined from the timestamps.
+        eye_fs = 60; % Hard coded as this is not included in the nwb file as of yet. Can (was) be determined from the timestamps.
+        wheel_fs = 60; % Hard coded as this is not included in the nwb file as of yet. Can (was) be determined from the timestamps.
 
         eye_pupil_area = 0;
         eye_blink = 0;

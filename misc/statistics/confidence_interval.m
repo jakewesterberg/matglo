@@ -11,21 +11,21 @@ end
 % data_in = 3dim matrix (channel x time x trial)
 if numel(size(data_in))==3
     if strcmp('mean', methd)
-        mean_out = mean(data_in,3);
+        mean_out = nanmean(data_in,3);
     else
-        mean_out = median(data_in,3);
+        mean_out = nanmedian(data_in,3);
     end
-    upper_out = mean_out + lvl*(std(data_in,[],3) ./ (sqrt(size(data_in,3))));
-    lower_out = mean_out - lvl*(std(data_in,[],3) ./ (sqrt(size(data_in,3))));
+    upper_out = mean_out + lvl*(nanstd(data_in,[],3) ./ (sqrt(size(data_in,3))));
+    lower_out = mean_out - lvl*(nanstd(data_in,[],3) ./ (sqrt(size(data_in,3))));
 else
 
     if strcmp('mean', methd)
-        mean_out = mean(data_in,2);
+        mean_out = nanmean(data_in,2);
     else
-        mean_out = median(data_in,2);
+        mean_out = nanmedian(data_in,2);
     end
-    upper_out = mean_out + lvl*(std(data_in,[],2) ./ (sqrt(size(data_in,2))));
-    lower_out = mean_out - lvl*(std(data_in,[],2) ./ (sqrt(size(data_in,2))));
+    upper_out = mean_out + lvl*(nanstd(data_in,[],2) ./ (sqrt(size(data_in,2))));
+    lower_out = mean_out - lvl*(nanstd(data_in,[],2) ./ (sqrt(size(data_in,2))));
 
 end
 
