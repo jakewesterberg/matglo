@@ -1,0 +1,50 @@
+function PREPROCESS(varargin)
+
+params.input_directory          = 'C:\Users\westerja\Dropbox\_DATA\000253\';
+params.output_directory         = 'Z:\_DATA\PREPROCESSED\Mouse\';
+
+varStrInd = find(cellfun(@ischar,varargin));
+for iv = 1:2:length(varStrInd)
+    eval(['params.' varargin{varStrInd(iv)} '=' varargin{varStrInd(iv)+1}])
+end
+
+FILES = find_in_dir(params.input_directory, '.nwb', 'probe');
+
+for ii = 1 : numel(FILES)
+
+    file = FILES{ii};
+    nwb = load_nwb(file);
+
+    subject = nwb.general_subject.subject_id;
+    if ~isnumeric(subject)
+        subject = num2str(subject);
+    end
+
+    file_path_out = [params.output_directory subject filesep ...
+        char(datetime(nwb.session_start_time, 'Format', 'yyyy-MM-dd'))];
+
+    if ~exist(file_path_out, 'dir')
+        mkdir(file_path_out)
+    end
+    file_path_out = [file_path_out filesep];
+
+    unit_info = pull_unit_info(nwb, file_path_out);
+
+    cnx = estimate_connectivity(unit_info);
+
+    %glo_info = pull_glo_info(nwb, file_path_out);
+    %pull_spks(unit_info, glo_info, 'fs', 1000, 'pre_dur', .5, 'on_dur', .5, ...
+    % 'off_dur', .5, 'file_path', file_path_out, 'file_name', 'glo_spks.mat');
+
+    %rf_info = pull_rf_info(nwb, file_path_out);
+    %pull_spks(unit_info, rf_info, 'fs', 1000, 'pre_dur', .05, 'on_dur', .25, ...
+    % 'off_dur', .05, 'file_path', file_path_out, 'file_name', 'rf_spks.mat');
+
+    %opto_info = pull_opto_info(nwb, file_path_out);
+    %pull_spks(unit_info, opto_info, 'fs', 1000, 'pre_dur', 1, 'on_dur', 1, ...
+    % 'off_dur', 1, 'file_path', file_path_out, 'file_name', 'opto_spks.mat');
+
+    clear nwb
+
+end
+end

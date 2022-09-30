@@ -25,12 +25,11 @@ for itt_str = 1 : length(dir_str)
 end
 
 if nargin > 2
-    good_files = ones(numel(dir_cont), 1, 'logical');
+    good_files = ones(numel(dir_cont), 1);
     for ii = 1 : numel(dir_cont)
         if strfind(dir_cont{ii}, 'probe')
-            good_files(ii) = 0;
+            good_files()
         end
     end
-    dir_cont = dir_cont(good_files);
 end
 end

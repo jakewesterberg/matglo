@@ -1,4 +1,4 @@
-function glo_info = pull_glo_info(nwb)
+function glo_info = pull_glo_info(nwb, file_path)
 
 % Jake Westerberg
 % Vanderbilt University
@@ -101,5 +101,9 @@ glo_info.iti                                = logical(glo_info.iti);
 glo_info.gloexp                             = logical(glo_info.gloexp);
 glo_info.rndctl                             = logical(glo_info.rndctl);
 glo_info.seqctl                             = logical(glo_info.seqctl);
+
+if exist('file_path', 'var')
+    save([file_path 'glo_info' '.mat'], 'glo_info', '-v7.3', '-nocompression')
+end
 
 end

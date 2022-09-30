@@ -1,4 +1,4 @@
-function opto_info = pull_opto_info(nwb)
+function opto_info = pull_opto_info(nwb, file_path)
 
 % Jake Westerberg
 % Vanderbilt University
@@ -14,5 +14,9 @@ opto_info.type           = nwb.processing.get('optotagging').dynamictable.get('o
 
 % count opto total trials
 opto_info.total_trials   = numel(opto_info.on);
+
+if exist('file_path', 'var')
+    save([file_path 'opto_info' '.mat'], 'opto_info', '-v7.3', '-nocompression')
+end
 
 end

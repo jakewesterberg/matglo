@@ -1,4 +1,4 @@
-function unit_info = pull_unit_info(nwb)
+function unit_info = pull_unit_info(nwb, file_path)
 
 % Jake Westerberg
 % Vanderbilt University
@@ -73,5 +73,9 @@ unit_info.velocity_below            = nwb.units.vectordata.get('velocity_below')
 unit_info.waveform_duration         = nwb.units.vectordata.get('waveform_duration').data(:);
 unit_info.waveform_halfwidth        = nwb.units.vectordata.get('waveform_halfwidth').data(:);
 unit_info.waveform_mean_index       = nwb.units.vectordata.get('waveform_mean_index').data(:);
+
+if exist('file_path', 'var')
+    save([file_path 'unit_info' '.mat'], 'unit_info', '-v7.3', '-nocompression')
+end
 
 end

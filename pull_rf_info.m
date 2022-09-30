@@ -1,4 +1,4 @@
-function rf = pull_rf_info(nwb)
+function rf = pull_rf_info(nwb, file_path)
 
 % Jake Westerberg
 % Vanderbilt University
@@ -20,5 +20,9 @@ rf.contrast         = nwb.intervals.get('create_receptive_field_mapping_presenta
 
 % count total rf trials
 rf.total_trials     = numel(rf.on);
+
+if exist('file_path', 'var')
+    save([file_path 'rf_info' '.mat'], 'rf_info', '-v7.3', '-nocompression')
+end
 
 end

@@ -1,4 +1,4 @@
-function cnx = est_cnx(unit_info, varargin)
+function cnx = estimate_connectivity(unit_info, varargin)
 
 % Jake Westerberg
 % Vanderbilt University
