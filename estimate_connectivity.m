@@ -5,10 +5,9 @@ function cnx = estimate_connectivity(unit_info, varargin)
 % jakewesterberg@gmail.com
 
 % defaults
-
 file_path = [pwd filesep];
 file_name = 'default_file_name.mat';
-fs = 30; % sampling rate per ms
+hyperparamter.fs = 30; % sampling rate per ms
 
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
@@ -17,6 +16,10 @@ for iv = 1:length(varStrInd)
             file_path = varargin{varStrInd(iv)+1};
         case {'-n', 'file_name'}
             file_name = varargin{varStrInd(iv)+1};
+        case {'-c', 'ccg_dir'}
+            ccg_dir = varargin{varStrInd(iv)+1};
+        case {'-f', 'fs'}
+            hyperparamter.fs = varargin{varStrInd(iv)+1};
     end
 end
 
@@ -28,74 +31,52 @@ hyperparameter.eta_w = 5;
 hyperparameter.eta_tau = 20;
 hyperparameter.eta_dt_coeff = 2;
 
-location = nan(unit_info.total,3);
+cnx.location = nan(unit_info.total,3);
 
 % Gen spike time cell array and locations
 for ii = 1 : unit_info.total
 
     spikes{ii} = unit_info.spk_times(unit_info.spk_unit==ii);
 
-    location(ii,3) = unit_info.channel(ii) * 10;
+    cnx.location(ii,3) = unit_info.channel(ii) * 10;
     switch unit_info.probe(ii)
         case 0
-            location(ii,1:2) = [88000, 72000];
+            cnx.location(ii,1:2) = [88000, 72000];
         case 1
-            location(ii,1:2) = [10000, 68000];
+            cnx.location(ii,1:2) = [10000, 68000];
         case 2
-            location(ii,1:2) = [18000, 98000];
+            cnx.location(ii,1:2) = [18000, 98000];
         case 3
-            location(ii,1:2) = [50000, 128000];
+            cnx.location(ii,1:2) = [50000, 128000];
         case 4
-            location(ii,1:2) = [112000, 136000];
+            cnx.location(ii,1:2) = [112000, 136000];
         case 5
-            location(ii,1:2) = [120000, 114000];
+            cnx.location(ii,1:2) = [120000, 114000];
     end
 end
 
-[CCG, t, distance, ignore] = generate_correlogram(spikes, fs, location, hyperparameter, true);
-X = learning_basis(CCG,ignore);
-
-%% model fitting and results
-NN = size(CCG,1);
-for pre = 1:NN % use parfor for parallel computing
-    fprintf('neuron %i ',pre)
-    model_fits(pre) = extendedGLM(CCG(pre,:), X, distance(pre,:),hyperparameter,ignore(pre,:));  
+%% compute correlograms
+% Want to outsource to supercomputer for this calculation
+if exist('ccg_dir', 'var')
+else
+    [cnx.CCG, ~, cnx.distance, cnx.ignore] = generate_correlogram(spikes, hyperparameter.fs, cnx.location, hyperparameter, true);
 end
 
-threshold = 5.09;
-results = detect_cnx(model_fits,ignore,threshold);
+%% learning phase
+cnx.X = learning_basis(cnx.CCG,cnx.ignore);
 
-%% plot CCG and fitting results
-pre = 1;post = 14;
-figure(1),
-plotCCG(pre,post,CCG,t,model_fits,results)
+%% model fitting and results
+NN = size(cnx.CCG,1);
+for pre = 1:NN % use parfor for parallel computing
+    fprintf('neuron %i ',pre)
+    cnx.model_fits(pre) = extendedGLM(cnx.CCG(pre,:), cnx.X, cnx.distance(pre,:), cnx.hyperparameter, cnx.ignore(pre,:));  
+end
 
-%% ROC curve for synapse detection(regardless of the sign of connections)
-true_label = data.syn.w_syn~=0;
-true_label = true_label(eye(NN)~=1);
-scores = results.llr_matrix(eye(NN)~=1);
-scores(isnan(scores)) = -Inf;
-[X,Y,T,AUC] = perfcurve(true_label,scores,1);
+% apply tentative threshold
+cnx.threshold = 5.09 * 2; % Multiplied by 2, seemed too accomodating
+cnx.results = detect_cnx(cnx.model_fits,cnx.ignore,cnx.threshold);
 
-%% Compare overall connectivity matrices
-figure,
-subplot(1,3,1)
-plot(X,Y,'LineWidth',2)
-ylabel('True positive rate')
-xlabel('False positive rate')
-title('ROC for synapse detection')
-axis square
-
-subplot(1,3,2)
-imagesc(sign(data.syn.w_syn))
-ylabel('Presynaptic Neuron')
-xlabel('Postsynaptic Neuron')
-title ('true connections')
-axis square
-subplot(1,3,3)
-imagesc(results.cnx_label)
-xlabel('Postsynaptic Neuron')
-title ('estimated connections')
-axis square
+%% save outputs
+save([file_path file_name], 'cnx', 'hyperparameter', 'file_name', '-v7.3', '-nocompression')
 
 end
