@@ -4,6 +4,10 @@ if length(lower)~=length(upper)
     error('lower and upper vectors must be same length')
 end
 
+if nargin<5
+    fa = 0.2;
+end
+
 if nargin<4
     color='b';
 end
